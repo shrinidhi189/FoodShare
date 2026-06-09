@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodShare - Join the Movement</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4caf50;
+            --primary-dark: #2e7d32;
+            --primary-light: #e8f5e9;
+            --secondary: #ff9800;
+            --dark: #1e2a1f;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --gray: #5a6e5a;
+            --gray-light: #e0e5e0;
+            --error: #f44336;
+            --success: #4caf50;
+            --glass-bg: rgba(255, 255, 255, 0.94);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background - Matching login page */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(135deg, #1b4d1b 0%, #2a7a2a 50%, #4caf50 100%);
+            overflow: hidden;
+        }
+
+        /* Floating food items animation */
+        .floating-food {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.12;
+            animation: floatAround 20s infinite linear;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.12;
+            }
+            90% {
+                opacity: 0.12;
+            }
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Animated waves / glow */
+        .wave-bg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+
+        .wave:nth-child(2) {
+            background: radial-gradient(circle at 80% 30%, rgba(255,215,0,0.1) 0%, transparent 70%);
+            animation: pulseGlow 12s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1);}
+            50% { opacity: 0.9; transform: scale(1.05);}
+        }
+
+        /* Grain texture */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Main container glassmorphism */
+        .auth-container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .auth-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 55px -12px rgba(0, 0, 0, 0.35);
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            padding: 2rem 2rem 1.8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-header::before {
+            content: "🍲 🥗 🍕 🥘";
+            position: absolute;
+            bottom: -15px;
+            right: -20px;
+            font-size: 5rem;
+            opacity: 0.1;
+            white-space: pre;
+            pointer-events: none;
+            transform: rotate(-10deg);
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .auth-header h1 i {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .auth-header p {
+            opacity: 0.95;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        .auth-card {
+            padding: 2.5rem;
+        }
+
+        /* Enhanced message styles */
+        .form-message {
+            padding: 1rem 1.2rem;
+            border-radius: 60px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            animation: slideDown 0.3s ease-out;
+            font-size: 0.9rem;
+        }
+
+        .form-message.error {
+            background: rgba(244, 67, 54, 0.92);
+            color: white;
+            border-left: 4px solid #b71c1c;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .form-message.success {
+            background: rgba(46, 125, 50, 0.95);
+            color: white;
+            border-left: 4px solid #1b5e20;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .form-message i {
+            margin-right: 8px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* Multi-step form styles */
+        .form-step {
+            display: none;
+            animation: fadeStep 0.4s ease;
+        }
+
+        @keyframes fadeStep {
+            from { opacity: 0; transform: translateX(8px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 3px;
+        }
+
+        .step-indicator {
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.55rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1.2rem;
+            border: 1.5px solid var(--gray-light);
+            border-radius: 60px;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        textarea.form-control {
+            border-radius: 20px;
+            resize: vertical;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+            transform: scale(1.01);
+        }
+
+        .form-control.error {
+            border-color: var(--error);
+            background-color: rgba(244, 67, 54, 0.02);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a6e5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.2rem center;
+        }
+
+        .password-input-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.85rem 1.5rem;
+            border: none;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(100deg, var(--primary-dark), var(--primary));
+            color: white;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(46, 125, 50, 0.4);
+            filter: brightness(1.02);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--gray-light);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .form-navigation .btn {
+            min-width: 110px;
+        }
+
+        .user-type-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-type {
+            flex: 1;
+            text-align: center;
+            padding: 1.2rem 0.5rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .user-type:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .user-type.active {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary-light), #ffffff);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+
+        .user-type i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--primary);
+        }
+
+        .user-type span {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-group input {
+            margin-top: 0.25rem;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-group label {
+            font-weight: normal;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .other-input {
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .other-input.active {
+            display: block;
+            animation: fadeSlideUp 0.2s ease;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Food types grid */
+        .food-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .food-types-grid .checkbox-group {
+            margin-bottom: 0;
+            background: rgba(0,0,0,0.02);
+            padding: 0.5rem 0.75rem;
+            border-radius: 40px;
+            transition: background 0.2s;
+        }
+
+        .food-types-grid .checkbox-group:hover {
+            background: rgba(76, 175, 80, 0.08);
+        }
+
+        @media (max-width: 550px) {
+            .auth-card {
+                padding: 1.8rem;
+            }
+            .auth-header {
+                padding: 1.5rem;
+            }
+            .auth-header h1 {
+                font-size: 1.7rem;
+            }
+            .user-type-selector {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .food-types-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .form-navigation {
+                flex-direction: column;
+            }
+            .form-navigation .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Dynamic Animated Background - Same as login page -->
+<div class="bg-animation">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave-bg"></div>
+</div>
+<div class="grain-overlay"></div>
+
+<script>
+    (function createFloatingFood() {
+        const foodItems = ['🍎', '🍕', '🥗', '🍲', '🥑', '🍞', '🥦', '🍉', '🥘', '🍚', '🥪', '🍅', '🥨', '🍩', '🥙'];
+        const container = document.querySelector('.bg-animation');
+        for (let i = 0; i < 32; i++) {
+            const food = document.createElement('div');
+            food.classList.add('floating-food');
+            const randomFood = foodItems[Math.floor(Math.random() * foodItems.length)];
+            food.textContent = randomFood;
+            const size = Math.floor(Math.random() * 38) + 16;
+            food.style.fontSize = size + 'px';
+            food.style.left = Math.random() * 100 + '%';
+            food.style.animationDuration = 14 + Math.random() * 22 + 's';
+            food.style.animationDelay = Math.random() * 16 + 's';
+            food.style.opacity = 0.06 + Math.random() * 0.12;
+            container.appendChild(food);
+        }
+    })();
+</script>
+
+<div class="auth-container">
+    <div class="auth-header">
+        <h1>
+            <i class="fas fa-seedling"></i>
+            FoodShare
+        </h1>
+        <p>Join us in reducing food waste & feeding communities</p>
+    </div>
+
+    <div class="auth-card">
+        <div class="form-message error" id="error-message" style="display: none;"></div>
+        <div class="form-message success" id="success-message" style="display: none;"></div>
+
+        <form id="signup-form">
+            <!-- Step 1: Account Type -->
+            <div class="form-step active" id="step1">
+                <div class="progress-bar">
+                    <div class="progress" style="width: 25%;"></div>
+                </div>
+                <div class="step-indicator"><i class="fas fa-user-plus"></i> Step 1 of 4: Choose Role</div>
+                
+                <div class="form-group">
+                    <label class="form-label">I want to:</label>
+                    <div class="user-type-selector">
+                        <div class="user-type active" data-type="donor">
+                            <i class="fas fa-utensils"></i>
+                            <span>Donate Food</span>
+                            <small style="display: block; font-size: 0.7rem; margin-top: 4px;">Restaurants, Cafes, Groceries</small>
+                        </div>
+                        <div class="user-type" data-type="recipient">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <span>Receive Food</span>
+                            <small style="display: block; font-size: 0.7rem; margin-top: 4px;">NGOs, Shelters, Communities</small>
+                        </div>
+                    </div>
+                    <input type="hidden" id="user-type" value="donor">
+                </div>
+
+                <div class="form-navigation">
+                    <div></div>
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: flex-end;">
+                        <span style="color: var(--dark); font-size: 0.85rem;">
+                            Already a member? 
+                            <a href="login.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Sign in</a>
+                        </span>
+                        <button type="button" class="btn btn-primary" id="step1-next">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Basic Information -->
+            <div class="form-step" id="step2">
+                <div class="progress-bar">
+                    <div class="progress" style="width: 50%;"></div>
+                </div>
+                <div class="step-indicator"><i class="fas fa-id-card"></i> Step 2 of 4: Your Details</div>
+
+                <div class="form-group">
+                    <label for="signup-name" class="form-label">Full Name / Organization Contact</label>
+                    <input type="text" id="signup-name" class="form-control" placeholder="Enter full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email" class="form-label">Email Address</label>
+                    <input type="email" id="signup-email" class="form-control" placeholder="hello@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-phone" class="form-label">Phone Number</label>
+                    <input type="tel" id="signup-phone" class="form-control" placeholder="+1 234 567 8900">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-address" class="form-label">Full Address</label>
+                    <textarea id="signup-address" class="form-control" placeholder="Street, City, ZIP Code" rows="2"></textarea>
+                </div>
+
+                <div id="recipient-org-name" style="display: none;">
+                    <div class="form-group">
+                        <label for="organization-name" class="form-label">Organization Name (Optional)</label>
+                        <input type="text" id="organization-name" class="form-control" placeholder="e.g., Helping Hands Foundation">
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-outline" id="step2-back"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary" id="step2-next">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 3: Role-specific Information -->
+            <div class="form-step" id="step3">
+                <div class="progress-bar">
+                    <div class="progress" style="width: 75%;"></div>
+                </div>
+                <div class="step-indicator"><i class="fas fa-clipboard-list"></i> Step 3 of 4: Additional Info</div>
+
+                <div id="donor-questions">
+                    <div class="form-group">
+                        <label for="business-type" class="form-label">Type of Food Business</label>
+                        <select id="business-type" class="form-control">
+                            <option value="">Select your business type</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="cafe">Cafe / Coffee Shop</option>
+                            <option value="bakery">Bakery</option>
+                            <option value="catering">Catering Service</option>
+                            <option value="grocery">Grocery Store</option>
+                            <option value="individual">Individual / Home Cook</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="other-input" id="business-other-input">
+                            <input type="text" class="form-control" placeholder="Please specify">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Food types you can donate</label>
+                        <div class="food-types-grid">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-prepared" value="prepared">
+                                <label for="food-prepared">🍲 Prepared Meals</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-produce" value="produce">
+                                <label for="food-produce">🥬 Grocery/Produce</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-bakery" value="bakery">
+                                <label for="food-bakery">🥖 Bakery Items</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-dairy" value="dairy">
+                                <label for="food-dairy">🥛 Dairy Products</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-packaged" value="packaged">
+                                <label for="food-packaged">📦 Packaged Foods</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-beverages" value="beverages">
+                                <label for="food-beverages">🥤 Beverages</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-frozen" value="frozen">
+                                <label for="food-frozen">❄️ Frozen Foods</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="food-other-check" value="other">
+                                <label for="food-other-check">🔄 Other</label>
+                            </div>
+                        </div>
+                        <div class="other-input" id="food-other-input">
+                            <input type="text" class="form-control" placeholder="Please specify other food types">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="donation-frequency" class="form-label">Donation Frequency</label>
+                        <select id="donation-frequency" class="form-control">
+                            <option value="">Select frequency</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="occasional">Occasionally</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="recipient-questions" style="display: none;">
+                    <div class="form-group">
+                        <label for="organization-type" class="form-label">Organization Type</label>
+                        <select id="organization-type" class="form-control">
+                            <option value="">Select organization type</option>
+                            <option value="ngo">NGO / Non-Profit</option>
+                            <option value="shelter">Homeless Shelter</option>
+                            <option value="community">Community Center</option>
+                            <option value="religious">Religious Organization</option>
+                            <option value="school">School / Educational</option>
+                            <option value="orphanage">Orphanage</option>
+                            <option value="oldage">Old Age Home</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="other-input" id="org-other-input">
+                            <input type="text" class="form-control" placeholder="Please specify">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="people-served" class="form-label">People served daily (approx.)</label>
+                        <input type="number" id="people-served" class="form-control" placeholder="Number of people" min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="storage-capacity" class="form-label">Storage Capacity</label>
+                        <select id="storage-capacity" class="form-control">
+                            <option value="">Select storage capacity</option>
+                            <option value="small">Small (Refrigerator only)</option>
+                            <option value="medium">Medium (Refrigerator + freezer)</option>
+                            <option value="large">Large (Commercial refrigeration)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-outline" id="step3-back"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="button" class="btn btn-primary" id="step3-next">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 4: Account Setup -->
+            <div class="form-step" id="step4">
+                <div class="progress-bar">
+                    <div class="progress" style="width: 100%;"></div>
+                </div>
+                <div class="step-indicator"><i class="fas fa-lock"></i> Step 4 of 4: Secure Account</div>
+
+                <div class="form-group">
+                    <label for="signup-password" class="form-label">Create Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="signup-password" class="form-control" placeholder="At least 6 characters">
+                        <button type="button" class="password-toggle" id="signup-password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-confirm-password" class="form-label">Confirm Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="signup-confirm-password" class="form-control" placeholder="Re-enter password">
+                        <button type="button" class="password-toggle" id="signup-confirm-password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms-agreement">
+                    <label for="terms-agreement">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="food-safety">
+                    <label for="food-safety">I agree to follow food safety & handling guidelines</label>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-outline" id="step4-back"><i class="fas fa-arrow-left"></i> Back</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Create Account</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDTw4Dgzb2F4yfkv5zMO4lNsucSqWS-gXE",
+        authDomain: "food-donation-2fb89.firebaseapp.com",
+        projectId: "food-donation-2fb89",
+        storageBucket: "food-donation-2fb89.firebasestorage.app",
+        messagingSenderId: "1096257872451",
+        appId: "1:1096257872451:web:d78e656c7fdc35c5372af6",
+        measurementId: "G-0CLBTVV9PV"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // DOM Elements
+    const signupForm = document.getElementById('signup-form');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    
+    let currentStep = 1;
+    const totalSteps = 4;
+    
+    function showMessage(message, type) {
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+        if (type === 'error') {
+            errorMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            errorMessage.style.display = 'block';
+            signupForm.classList.add('shake');
+            setTimeout(() => signupForm.classList.remove('shake'), 500);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            successMessage.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            successMessage.style.display = 'block';
+        }
+    }
+    
+    function goToStep(step) {
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.getElementById(`step${step}`).classList.add('active');
+        currentStep = step;
+        const progressPercentage = (step / totalSteps) * 100;
+        document.querySelectorAll('.progress').forEach(p => p.style.width = `${progressPercentage}%`);
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => goToStep(1));
+    
+    // Account type selection
+    const userTypes = document.querySelectorAll('.user-type');
+    const userTypeInput = document.getElementById('user-type');
+    userTypes.forEach(type => {
+        type.addEventListener('click', function() {
+            userTypes.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            userTypeInput.value = this.dataset.type;
+            document.getElementById('recipient-org-name').style.display = this.dataset.type === 'recipient' ? 'block' : 'none';
+            document.getElementById('donor-questions').style.display = this.dataset.type === 'donor' ? 'block' : 'none';
+            document.getElementById('recipient-questions').style.display = this.dataset.type === 'recipient' ? 'block' : 'none';
+        });
+    });
+    
+    // Navigation
+    document.getElementById('step1-next').addEventListener('click', () => userTypeInput.value ? goToStep(2) : showMessage('Please select account type', 'error'));
+    document.getElementById('step2-back').addEventListener('click', () => goToStep(1));
+    document.getElementById('step2-next').addEventListener('click', () => {
+        const name = document.getElementById('signup-name').value;
+        const email = document.getElementById('signup-email').value;
+        const phone = document.getElementById('signup-phone').value;
+        const address = document.getElementById('signup-address').value;
+        if (!name || !email || !phone || !address) return showMessage('Please fill all fields', 'error');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showMessage('Valid email required', 'error');
+        goToStep(3);
+    });
+    
+    document.getElementById('step3-back').addEventListener('click', () => goToStep(2));
+    document.getElementById('step3-next').addEventListener('click', () => {
+        const userType = userTypeInput.value;
+        if (userType === 'donor') {
+            const bizType = document.getElementById('business-type').value;
+            const freq = document.getElementById('donation-frequency').value;
+            const anyFood = document.querySelectorAll('input[name="food-types"]:checked, #food-prepared:checked, #food-produce:checked, #food-bakery:checked, #food-dairy:checked, #food-packaged:checked, #food-beverages:checked, #food-frozen:checked, #food-other-check:checked').length;
+            if (!bizType || anyFood === 0 || !freq) return showMessage('Please complete all donor info', 'error');
+        } else {
+            const orgType = document.getElementById('organization-type').value;
+            const people = document.getElementById('people-served').value;
+            const storage = document.getElementById('storage-capacity').value;
+            if (!orgType || !people || !storage) return showMessage('Please complete all recipient info', 'error');
+        }
+        goToStep(4);
+    });
+    
+    document.getElementById('step4-back').addEventListener('click', () => goToStep(3));
+    
+    // Other fields toggles
+    document.getElementById('business-type').addEventListener('change', function() {
+        document.getElementById('business-other-input').classList.toggle('active', this.value === 'other');
+    });
+    document.getElementById('organization-type').addEventListener('change', function() {
+        document.getElementById('org-other-input').classList.toggle('active', this.value === 'other');
+    });
+    document.getElementById('food-other-check').addEventListener('change', function() {
+        document.getElementById('food-other-input').classList.toggle('active', this.checked);
+    });
+    
+    // Password toggles
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    });
+    
+    // Form submission
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (currentStep !== 4) return showMessage('Complete all steps first', 'error');
+        
+        const password = document.getElementById('signup-password').value;
+        const confirm = document.getElementById('signup-confirm-password').value;
+        const terms = document.getElementById('terms-agreement').checked;
+        const safety = document.getElementById('food-safety').checked;
+        if (!terms || !safety) return showMessage('Please accept all agreements', 'error');
+        if (password !== confirm) return showMessage('Passwords do not match', 'error');
+        if (password.length < 6) return showMessage('Password must be at least 6 characters', 'error');
+        
+        const userType = userTypeInput.value;
+        const email = document.getElementById('signup-email').value;
+        const name = document.getElementById('signup-name').value;
+        
+        const submitBtn = signupForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+        submitBtn.disabled = true;
+        
+        try {
+            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+            const userData = {
+                uid: userCred.user.uid,
+                name, email, phone: document.getElementById('signup-phone').value,
+                address: document.getElementById('signup-address').value,
+                userType, createdAt: serverTimestamp()
+            };
+            if (userType === 'donor') {
+                userData.businessType = document.getElementById('business-type').value;
+                if (userData.businessType === 'other') userData.businessTypeOther = document.querySelector('#business-other-input input').value;
+                const foods = [];
+                if (document.getElementById('food-prepared').checked) foods.push('Prepared Meals');
+                if (document.getElementById('food-produce').checked) foods.push('Grocery/Produce');
+                if (document.getElementById('food-bakery').checked) foods.push('Bakery');
+                if (document.getElementById('food-dairy').checked) foods.push('Dairy');
+                if (document.getElementById('food-packaged').checked) foods.push('Packaged Foods');
+                if (document.getElementById('food-beverages').checked) foods.push('Beverages');
+                if (document.getElementById('food-frozen').checked) foods.push('Frozen Foods');
+                if (document.getElementById('food-other-check').checked) foods.push(document.querySelector('#food-other-input input').value || 'Other');
+                userData.foodTypes = foods;
+                userData.donationFrequency = document.getElementById('donation-frequency').value;
+            } else {
+                userData.organizationName = document.getElementById('organization-name').value || null;
+                userData.organizationType = document.getElementById('organization-type').value;
+                if (userData.organizationType === 'other') userData.organizationTypeOther = document.querySelector('#org-other-input input').value;
+                userData.peopleServed = parseInt(document.getElementById('people-served').value);
+                userData.storageCapacity = document.getElementById('storage-capacity').value;
+            }
+            await setDoc(doc(db, "users", userCred.user.uid), userData);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            localStorage.setItem('userRole', userType);
+            showMessage('Account created! Redirecting...', 'success');
+            setTimeout(() => window.location.href = userType === 'donor' ? 'delivery.html' : 'receiver.html', 1500);
+        } catch (err) {
+            let msg = 'Registration failed';
+            if (err.code === 'auth/email-already-in-use') msg = 'Email already registered. Please login.';
+            else if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
+            else if (err.code === 'auth/weak-password') msg = 'Password too weak.';
+            showMessage(msg, 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

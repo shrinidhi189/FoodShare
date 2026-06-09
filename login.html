@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>FoodShare - Access Your Account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4caf50;
+            --primary-dark: #2e7d32;
+            --primary-light: #e8f5e9;
+            --secondary: #ff9800;
+            --dark: #1e2a1f;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --gray: #5a6e5a;
+            --gray-light: #e0e5e0;
+            --error: #f44336;
+            --success: #4caf50;
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background - Food themed gradient & particles */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(135deg, #1b4d1b 0%, #2a7a2a 50%, #4caf50 100%);
+            overflow: hidden;
+        }
+
+        .floating-food {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.15;
+            animation: floatAround 20s infinite linear;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.15;
+            }
+            90% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-20vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 70%);
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+
+        .wave:nth-child(2) {
+            background: radial-gradient(circle at 80% 30%, rgba(255,215,0,0.08) 0%, transparent 70%);
+            animation: pulseGlow 12s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: scale(1);}
+            50% { opacity: 0.8; transform: scale(1.05);}
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Main container glassmorphism */
+        .auth-container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeSlideUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .auth-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 55px -12px rgba(0, 0, 0, 0.35);
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            padding: 2rem 2rem 1.8rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-header::before {
+            content: "🍲 🥗 🍕";
+            position: absolute;
+            bottom: -15px;
+            right: -20px;
+            font-size: 5rem;
+            opacity: 0.1;
+            white-space: pre;
+            pointer-events: none;
+            transform: rotate(-10deg);
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .auth-header h1 i {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .auth-header p {
+            opacity: 0.95;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        .auth-card {
+            padding: 2.5rem;
+        }
+
+        /* Enhanced message styles */
+        .form-message {
+            padding: 1rem 1.2rem;
+            border-radius: 60px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            animation: slideDown 0.3s ease-out;
+            font-size: 0.9rem;
+        }
+
+        .form-message.error {
+            background: rgba(244, 67, 54, 0.92);
+            color: white;
+            border-left: 4px solid #b71c1c;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .form-message.success {
+            background: rgba(46, 125, 50, 0.95);
+            color: white;
+            border-left: 4px solid #1b5e20;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .form-message i {
+            margin-right: 8px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.55rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1.2rem;
+            border: 1.5px solid var(--gray-light);
+            border-radius: 60px;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+            transform: scale(1.01);
+        }
+
+        .form-control.error {
+            border-color: var(--error);
+            background-color: rgba(244, 67, 54, 0.02);
+        }
+
+        .password-input-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.85rem 1.5rem;
+            border: none;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(100deg, var(--primary-dark), var(--primary));
+            color: white;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(46, 125, 50, 0.4);
+            filter: brightness(1.02);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remember-me input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .remember-me label {
+            font-size: 0.85rem;
+            color: var(--dark);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .forgot-password a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+            color: var(--secondary);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.8rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .auth-footer p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .auth-footer a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+            color: var(--secondary);
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 36px;
+            width: 90%;
+            max-width: 440px;
+            padding: 2rem 2rem 2rem;
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px) scale(0.96);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .modal-close {
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--error);
+        }
+
+        .modal-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .modal-footer a {
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 550px) {
+            .auth-card {
+                padding: 1.8rem;
+            }
+            .auth-header {
+                padding: 1.5rem;
+            }
+            .auth-header h1 {
+                font-size: 1.7rem;
+            }
+            .btn {
+                padding: 0.75rem;
+            }
+            .form-control {
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Dynamic Animated Background with Floating Food Elements -->
+<div class="bg-animation">
+    <div class="wave"></div>
+    <div class="wave"></div>
+</div>
+<div class="grain-overlay"></div>
+
+<!-- Generate floating food icons dynamically -->
+<script>
+    (function createFloatingFood() {
+        const foodItems = ['🍎', '🍕', '🥗', '🍲', '🥑', '🍞', '🥦', '🍉', '🥘', '🍚', '🥪', '🍅'];
+        const container = document.querySelector('.bg-animation');
+        if(container) {
+            for (let i = 0; i < 28; i++) {
+                const food = document.createElement('div');
+                food.classList.add('floating-food');
+                const randomFood = foodItems[Math.floor(Math.random() * foodItems.length)];
+                food.textContent = randomFood;
+                const size = Math.floor(Math.random() * 35) + 18;
+                food.style.fontSize = size + 'px';
+                food.style.left = Math.random() * 100 + '%';
+                food.style.animationDuration = 15 + Math.random() * 20 + 's';
+                food.style.animationDelay = Math.random() * 15 + 's';
+                food.style.opacity = 0.07 + Math.random() * 0.12;
+                container.appendChild(food);
+            }
+        }
+    })();
+</script>
+
+<div class="auth-container">
+    <div class="auth-header">
+        <h1>
+            <i class="fas fa-hand-holding-heart"></i>
+            FoodShare
+        </h1>
+        <p>Share meals, nourish souls — sign in to continue</p>
+    </div>
+
+    <div class="auth-card">
+        <!-- Dynamic messages -->
+        <div class="form-message error" id="error-message" style="display: none;"></div>
+        <div class="form-message success" id="success-message" style="display: none;"></div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email" class="form-label"><i class="fas fa-envelope" style="margin-right: 6px;"></i> Email Address</label>
+                <input type="email" id="login-email" class="form-control" placeholder="hello@foodshare.com" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="login-password" class="form-label"><i class="fas fa-lock" style="margin-right: 6px;"></i> Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="password-toggle" id="login-password-toggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember-me">
+                    <label for="remember-me">Keep me signed in</label>
+                </div>
+                <div class="forgot-password">
+                    <a href="#" id="forgot-password-link">🔐 Forgot password?</a>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-arrow-right-to-bracket"></i>
+                Sign In
+            </button>
+
+            <div class="auth-footer">
+                <p>Join our mission — <a href="signup.html">Create free account</a></p>
+                <p style="font-size: 0.75rem; margin-top: 12px;"><i class="fas fa-seedling"></i> Connecting donors & recipients</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="forgot-password-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title"><i class="fas fa-key"></i> Reset password</h2>
+            <button class="modal-close" id="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="forgot-password-form">
+            <div class="form-group">
+                <p style="margin-bottom: 1rem; color: #2e3b2e;">We'll send a secure reset link to your email.</p>
+                <label for="reset-email" class="form-label">Email Address</label>
+                <input type="email" id="reset-email" class="form-control" placeholder="Enter your email">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i>
+                Send Reset Link
+            </button>
+        </form>
+        <div class="modal-footer">
+            <a href="#" id="back-to-login"><i class="fas fa-chevron-left"></i> Back to login</a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDTw4Dgzb2F4yfkv5zMO4lNsucSqWS-gXE",
+        authDomain: "food-donation-2fb89.firebaseapp.com",
+        projectId: "food-donation-2fb89",
+        storageBucket: "food-donation-2fb89.firebasestorage.app",
+        messagingSenderId: "1096257872451",
+        appId: "1:1096257872451:web:d78e656c7fdc35c5372af6",
+        measurementId: "G-0CLBTVV9PV"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // DOM elements
+    const loginForm = document.getElementById('login-form');
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+    const errorMsgDiv = document.getElementById('error-message');
+    const successMsgDiv = document.getElementById('success-message');
+    const loginPasswordToggle = document.getElementById('login-password-toggle');
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    const modal = document.getElementById('forgot-password-modal');
+    const modalClose = document.getElementById('modal-close');
+    const backToLogin = document.getElementById('back-to-login');
+    const rememberMeCheckbox = document.getElementById('remember-me');
+    
+    // Helper: show message
+    function showMessage(message, type) {
+        clearMessages();
+        if (type === 'error') {
+            errorMsgDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            errorMsgDiv.style.display = 'block';
+            loginForm.classList.add('shake');
+            setTimeout(() => loginForm.classList.remove('shake'), 500);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (type === 'success') {
+            successMsgDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            successMsgDiv.style.display = 'block';
+        }
+    }
+    
+    function clearMessages() {
+        errorMsgDiv.style.display = 'none';
+        successMsgDiv.style.display = 'none';
+    }
+    
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+    
+    // Load saved credentials
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedEmail = localStorage.getItem('rememberedEmail');
+        const isRemembered = localStorage.getItem('rememberMe') === 'true';
+        if (isRemembered && savedEmail) {
+            document.getElementById('login-email').value = savedEmail;
+            rememberMeCheckbox.checked = true;
+        }
+        
+        // *** CHANGED: Do NOT auto-redirect previously logged in user to role pages.
+        // Instead, we simply clear any stale role-based session that would force direct dashboard.
+        // If user had "userLoggedIn" flag but we want them to go via index page, we keep session but let them decide from index.
+        // However, to respect new flow, we only clear the automatic routing intent: 
+        // we remove any "redirectAfterLogin" flag if present. But we want index page to handle final redirection after clicking 'Get Started'.
+        // We'll leave localStorage data but prevent auto-forward by not checking "userLoggedIn" trigger.
+        // For improved UX: If user lands here while already logged in, we could optionally show a small banner but not redirect.
+        // We remove any forceful redirect that would override index.html logic.
+        // But keep the flag so index knows user is logged in.
+        // We will not automatically reroute to delivery/receiver from here on page load.
+    });
+    
+    // Toggle password visibility
+    loginPasswordToggle.addEventListener('click', () => {
+        const input = document.getElementById('login-password');
+        const icon = loginPasswordToggle.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+    
+    // Modal controls
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.classList.add('active');
+    });
+    modalClose.addEventListener('click', () => modal.classList.remove('active'));
+    backToLogin.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.classList.remove('active');
+    });
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
+    
+    // Forgot password submit
+    forgotPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('reset-email').value.trim();
+        if (!email || !validateEmail(email)) {
+            showMessage('Please enter a valid email address.', 'error');
+            return;
+        }
+        const btn = forgotPasswordForm.querySelector('button[type="submit"]');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        btn.disabled = true;
+        try {
+            await sendPasswordResetEmail(auth, email);
+            showMessage('✨ Reset link sent! Check your inbox/spam', 'success');
+            modal.classList.remove('active');
+            document.getElementById('reset-email').value = '';
+        } catch (err) {
+            let msg = "Unable to send reset email.";
+            if (err.code === 'auth/user-not-found') msg = "No account found with this email.";
+            else if (err.code === 'auth/invalid-email') msg = "Invalid email address.";
+            showMessage(msg, 'error');
+        } finally {
+            btn.innerHTML = original;
+            btn.disabled = false;
+        }
+    });
+    
+    // LOGIN handler - redirected to index.html instead of role-specific pages
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const rememberMe = rememberMeCheckbox.checked;
+        
+        if (!email || !password) {
+            showMessage('Please fill both email and password fields', 'error');
+            return;
+        }
+        if (!validateEmail(email)) {
+            showMessage('Please enter a valid email address (e.g., name@example.com)', 'error');
+            return;
+        }
+        
+        if (rememberMe) {
+            localStorage.setItem('rememberMe', 'true');
+            localStorage.setItem('rememberedEmail', email);
+        } else {
+            localStorage.setItem('rememberMe', 'false');
+            localStorage.removeItem('rememberedEmail');
+        }
+        
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalBtnHTML = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+        submitBtn.disabled = true;
+        
+        try {
+            const userCred = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCred.user;
+            const userDocRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userDocRef);
+            
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+                // Store user data in localStorage
+                localStorage.setItem('userLoggedIn', 'true');
+                localStorage.setItem('currentUser', JSON.stringify({
+                    uid: user.uid,
+                    name: userData.name || user.email,
+                    email: user.email,
+                    userType: userData.userType,
+                    ...userData
+                }));
+                localStorage.setItem('userRole', userData.userType);
+                
+                // CRITICAL CHANGE: Instead of redirecting to delivery.html or receiver.html,
+                // we redirect to index.html (the landing page) where users must click "Get Started"
+                // to proceed to their respective dashboard/receiver/delivery pages.
+                // Also we store a flag so that index.html can know a fresh login just happened,
+                // but it's optional; the main point: index will check userLoggedIn and userRole.
+                // Additionally, we want a friendly message before redirect.
+                
+                showMessage('✅ Login successful! Redirecting to homepage...', 'success');
+                
+                // Short delay to allow success message to be seen, then navigate to index.html
+                setTimeout(() => {
+                    // Ensure we redirect to index.html (or root index)
+                    window.location.href = 'index.html';
+                }, 1300);
+            } else {
+                showMessage("Account data incomplete. Contact support.", 'error');
+                submitBtn.innerHTML = originalBtnHTML;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            let friendlyMsg = "Incorrect email or password. Please try again.";
+            if (error.code === 'auth/user-not-found') friendlyMsg = "No account associated with this email. Sign up first.";
+            else if (error.code === 'auth/wrong-password') friendlyMsg = "Wrong password. Please try again.";
+            else if (error.code === 'auth/invalid-email') friendlyMsg = "Please enter a valid email address.";
+            else if (error.code === 'auth/too-many-requests') friendlyMsg = "Too many failed attempts. Try again later.";
+            showMessage(friendlyMsg, 'error');
+            submitBtn.innerHTML = originalBtnHTML;
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+<!-- Additional note for index.html integration (concept only) 
+     The index.html file should be designed to check localStorage.getItem('userLoggedIn') and userRole,
+     then provide a 'Get Started' button that redirects to donor/receiver pages accordingly.
+     This meets requirement: after login, user lands on index, then manually clicks "Get Started" to go further. -->
+</body>
+</html>

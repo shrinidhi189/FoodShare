@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How It Works - FoodShare</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4caf50;
+      --primary-dark: #388e3c;
+      --secondary: #ff9800;
+      --secondary-dark: #f57c00;
+      --gray: #757575;
+      --dark: #333;
+      --light: #f9f9f9;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; width: 90%; margin: 0 auto; padding: 20px; }
+    header {
+      background: var(--white);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky; top: 0; z-index: 1000;
+    }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+    .logo { font-size: 1.8rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; }
+    .logo i { margin-right: 10px; }
+    .nav-links { display: flex; list-style: none; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      text-decoration: none; color: var(--dark); font-weight: 600;
+      transition: color 0.3s ease; padding: 0.5rem 0; position: relative; white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px; background-color: var(--primary); transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── User status pill ── */
+    .user-status-area { display: flex; align-items: center; }
+    .user-status {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: #e8f5e9; padding: 0.4rem 1rem; border-radius: 40px;
+    }
+    .user-status i { font-size: 1.2rem; color: #4caf50; }
+    .user-name { font-weight: 600; color: #333; font-size: 0.9rem; }
+    .logout-btn {
+      background: none; border: none; color: #d32f2f; cursor: pointer;
+      font-weight: 600; font-size: 0.85rem; padding: 0.2rem 0.8rem;
+      border-radius: 20px; transition: all 0.3s ease;
+    }
+    .logout-btn:hover { background: rgba(211, 47, 47, 0.1); }
+    .auth-buttons-small { display: flex; gap: 0.8rem; }
+    .btn-small { padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; text-decoration: none; }
+    .btn-outline-small { border: 1.5px solid #4caf50; color: #4caf50; background: transparent; }
+    .btn-primary-small { background: #4caf50; color: white; }
+    .btn-outline-small:hover { background: #4caf50; color: white; }
+    .btn-primary-small:hover { background: #388e3c; }
+
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark); cursor: pointer; }
+    .mobile-nav {
+      position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
+      background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      transition: right 0.3s ease; z-index: 999; padding: 2rem;
+    }
+    .mobile-nav.active { right: 0; }
+    .mobile-nav ul { list-style: none; margin-top: 2rem; }
+    .mobile-nav ul li { margin-bottom: 1.5rem; }
+    .mobile-nav ul a { text-decoration: none; color: var(--dark); font-weight: 600; font-size: 1.1rem; }
+    .close-mobile-nav { position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; background: none; border: none; cursor: pointer; }
+
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        url('https://i.imghippo.com/files/ZDXS1228XWM.jpg') center/cover no-repeat;
+      color: white; padding: 6rem 2rem; text-align: center; border-radius: 8px; margin: 2rem 0;
+    }
+    .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+    .hero p { font-size: 1.25rem; max-width: 600px; margin: 0 auto 2rem; }
+    .how-it-works {
+      margin: 4rem 0; padding: 2rem 0;
+      background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .how-it-works h2 { text-align: center; margin-bottom: 3rem; color: var(--dark); }
+    .steps-container {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      position: relative; max-width: 1000px; margin: 0 auto;
+    }
+    .steps-container::before {
+      content: ''; position: absolute; top: 40px; left: 10%; right: 10%;
+      height: 3px; background: var(--primary); z-index: 1;
+    }
+    .step { flex: 1; text-align: center; padding: 0 1rem; position: relative; z-index: 2; }
+    .step-number {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: bold; margin: 0 auto 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .step h3 { margin-bottom: 1rem; color: var(--dark); }
+    .step p { color: var(--gray); }
+    .feature-card {
+      background: white; border-radius: 10px; box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+      padding: 2rem; width: 100%; max-width: 800px; margin: 2rem auto; text-align: center;
+    }
+    .feature-card h2 { margin-bottom: 1.5rem; color: var(--dark); }
+    .feature-card p { text-align: left; margin-top: 1rem; color: var(--gray); }
+    .user-types {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem; margin: 3rem 0;
+    }
+    .user-type-card {
+      background: white; border-radius: 10px; padding: 2rem; text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;
+    }
+    .user-type-card:hover { transform: translateY(-5px); }
+    .user-type-card i { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
+    .user-type-card h3 { margin-bottom: 1rem; color: var(--dark); }
+    .user-type-card p { color: var(--gray); }
+    .btn { padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-block; border: none; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    footer { background: var(--dark); color: #aaa; padding: 3rem 1rem; margin-top: 3rem; }
+    .footer-content {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem; margin-bottom: 2rem;
+    }
+    .footer-section h3 { color: var(--primary); margin-bottom: 1rem; }
+    .footer-section ul { list-style: none; }
+    .footer-section ul li { margin-bottom: 0.5rem; }
+    .footer-section a { color: #ccc; text-decoration: none; transition: color 0.3s ease; }
+    .footer-section a:hover { color: var(--primary); }
+    .copyright { text-align: center; padding-top: 2rem; border-top: 1px solid #444; }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+      .hero h1 { font-size: 2.2rem; }
+      .hero p { font-size: 1.1rem; }
+      .steps-container { flex-direction: column; gap: 2rem; }
+      .steps-container::before { display: none; }
+      .step { display: flex; align-items: center; text-align: left; gap: 1rem; }
+      .step-number { margin: 0; flex-shrink: 0; width: 60px; height: 60px; font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <i class="fas fa-utensils"></i>
+          FoodShare
+        </div>
+        <ul class="nav-links">
+  <li><a href="index.html" style="color: var(--primary);">Home</a></li>
+  <li><a href="about.html">About Us</a></li>
+  <li><a href="how-it-works.html">How It Works</a></li>
+  <li><a href="partners.html">Delivery Partners</a></li>
+  <li><a href="contact.html">Contact</a></li>
+  <!-- ⭐ ADD THIS LINE - Profile link (hidden by default) -->
+  <li><a href="profile.html" id="profileLink" style="display: none;"><i class="fas fa-user-circle"></i> My Profile</a></li>
+</ul>
+
+<div id="user-status-area" class="user-status-area"></div>
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+  <i class="fas fa-bars"></i>
+</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="close-mobile-nav" id="closeMobileNav">
+      <i class="fas fa-times"></i>
+    </button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="partners.html">Delivery Partners</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <!-- ⭐ ADD THIS LINE - Profile link for mobile (hidden by default) -->
+      <li><a href="profile.html" id="mobileProfileLink" style="display: none;"><i class="fas fa-user-circle"></i> My Profile</a></li>
+    </ul>
+    <div id="mobileUserStatus" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;"></div>
+</div>
+   
+
+  <section class="hero">
+    <div class="container">
+      <h1>How It Works</h1>
+      <p>Simple steps to make a difference</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="how-it-works">
+      <h2>Our Process</h2>
+      <div class="steps-container">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>List Your Food</h3>
+          <p>Donors easily list surplus food with details and pickup information</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Get Matched</h3>
+          <p>Our system matches donations with nearby recipients in need</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Arrange Delivery</h3>
+          <p>Coordinate pickup or delivery through our partner network</p>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3>Make an Impact</h3>
+          <p>Food reaches those in need, reducing waste and fighting hunger</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <h2>For Food Donors</h2>
+      <p>If you have surplus food to donate, the process is simple:</p>
+      <ol style="text-align: left; margin-top: 1rem; padding-left: 1.5rem;">
+        <li>Create an account and verify your food business or individual donor status</li>
+        <li>List available food with details (type, quantity, preparation time, expiry)</li>
+        <li>Set pickup availability windows</li>
+        <li>Receive match notifications with nearby recipients</li>
+        <li>Coordinate pickup with our delivery partners or volunteers</li>
+        <li>Track your impact through our dashboard</li>
+      </ol>
+    </div>
+
+    <div class="feature-card">
+      <h2>For Food Recipients</h2>
+      <p>If you represent an organization that needs food donations:</p>
+      <ol style="text-align: left; margin-top: 1rem; padding-left: 1.5rem;">
+        <li>Register your organization and complete verification</li>
+        <li>Set your food needs and capacity</li>
+        <li>Receive notifications of available donations in your area</li>
+        <li>Accept donations that match your requirements</li>
+        <li>Coordinate delivery or pickup</li>
+        <li>Provide feedback on received donations</li>
+      </ol>
+    </div>
+
+    <h2 style="text-align: center; margin: 3rem 0 2rem; color: var(--dark);">Who Can Participate</h2>
+    <div class="user-types">
+      <div class="user-type-card">
+        <i class="fas fa-hotel"></i>
+        <h3>Hotels & Restaurants</h3>
+        <p>Donate surplus prepared food from events, buffets, or daily operations</p>
+      </div>
+      <div class="user-type-card">
+        <i class="fas fa-user"></i>
+        <h3>Individuals</h3>
+        <p>Share excess home-cooked meals or unused groceries</p>
+      </div>
+      <div class="user-type-card">
+        <i class="fas fa-hands-helping"></i>
+        <h3>NGOs & Organizations</h3>
+        <p>Receive food donations for community programs and services</p>
+      </div>
+      <div class="user-type-card">
+        <i class="fas fa-home"></i>
+        <h3>Shelters & Orphanages</h3>
+        <p>Access nutritious meals for residents and program participants</p>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <h2>Food Safety</h2>
+      <p>We prioritize food safety in all our operations. All donations must meet our safety guidelines:</p>
+      <ul style="text-align: left; margin-top: 1rem; padding-left: 1.5rem;">
+        <li>Food must be prepared and handled following proper hygiene practices</li>
+        <li>Perishable items must be properly refrigerated until pickup</li>
+        <li>All food must be within safe consumption timelines</li>
+        <li>Clear labeling of ingredients for allergen awareness</li>
+        <li>Proper packaging for safe transport</li>
+      </ul>
+      <p style="margin-top: 1rem;">Our delivery partners are trained in safe food handling during transport.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>FoodShare</h3>
+          <p>Connecting surplus food with people in need to reduce waste and fight hunger.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="partners.html">Delivery Partners</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Resources</h3>
+          <ul>
+            <li><a href="#">Food Safety Guidelines</a></li>
+            <li><a href="#">Partner Organizations</a></li>
+            <li><a href="#">Volunteer Opportunities</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact</h3>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@foodshare.org</li>
+            <li><i class="fas fa-phone"></i> (555) 123-FOOD</li>
+            <li><i class="fas fa-map-marker-alt"></i> 123 Community Ave, City</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        &copy; 2025 FoodShare — Connecting surplus food with people in need.
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTw4Dgzb2F4yfkv5zMO4lNsucSqWS-gXE",
+      authDomain: "food-donation-2fb89.firebaseapp.com",
+      projectId: "food-donation-2fb89",
+      storageBucket: "food-donation-2fb89.firebasestorage.app",
+      messagingSenderId: "1096257872451",
+      appId: "1:1096257872451:web:d78e656c7fdc35c5372af6",
+      measurementId: "G-0CLBTVV9PV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentUserData = null;
+
+   // ── Navbar auth ────────────────────────────────────────────────────────
+function updateNavbarAuth() {
+  const userStatusArea = document.getElementById('user-status-area');
+  const mobileUserStatus = document.getElementById('mobileUserStatus');
+  
+  // ⭐ GET PROFILE LINK ELEMENTS
+  const profileLink = document.getElementById('profileLink');
+  const mobileProfileLink = document.getElementById('mobileProfileLink');
+
+  if (currentUser && currentUserData) {
+    const displayName = (currentUserData.name || currentUser.email.split('@')[0]).toUpperCase();
+    const userName = displayName.length > 15 ? displayName.substring(0, 12) + '...' : displayName;
+
+    // ⭐ SHOW PROFILE LINKS WHEN LOGGED IN
+    if (profileLink) profileLink.style.display = 'block';
+    if (mobileProfileLink) mobileProfileLink.style.display = 'block';
+
+    userStatusArea.innerHTML = `
+      <div class="user-status">
+        <i class="fas fa-user-circle"></i>
+        <span class="user-name">${userName}</span>
+        <button class="logout-btn" id="logout-btn-nav"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>`;
+
+    mobileUserStatus.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        <div style="display:flex;align-items:center;gap:0.8rem;">
+          <i class="fas fa-user-circle" style="font-size:1.2rem;color:#4caf50;"></i>
+          <span style="font-weight:600;">${displayName}</span>
+        </div>
+        <button class="logout-btn" id="mobile-logout-btn" style="background:#ffebee;padding:0.5rem;border-radius:6px;width:100%;">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>`;
+
+    document.getElementById('logout-btn-nav')?.addEventListener('click', handleLogout);
+    document.getElementById('mobile-logout-btn')?.addEventListener('click', handleLogout);
+  } else {
+    // ⭐ HIDE PROFILE LINKS WHEN LOGGED OUT
+    if (profileLink) profileLink.style.display = 'none';
+    if (mobileProfileLink) mobileProfileLink.style.display = 'none';
+    
+    userStatusArea.innerHTML = `
+      <div class="auth-buttons-small">
+        <a href="login.html" class="btn-small btn-outline-small">Login</a>
+        <a href="signup.html" class="btn-small btn-primary-small">Register</a>
+      </div>`;
+
+    mobileUserStatus.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        <a href="login.html" class="btn-small btn-outline-small" style="text-align:center;text-decoration:none;">Login</a>
+        <a href="signup.html" class="btn-small btn-primary-small" style="text-align:center;text-decoration:none;">Register</a>
+      </div>`;
+  }
+}
+
+async function handleLogout(e) {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+    localStorage.clear();
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+}
+
+// ── Mobile menu ────────────────────────────────────────────────────────
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.getElementById('mobileNav');
+const closeMobileNav = document.getElementById('closeMobileNav');
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+if (closeMobileNav) closeMobileNav.addEventListener('click', () => mobileNav.classList.remove('active'));
+document.addEventListener('click', (e) => {
+  if (mobileNav?.classList.contains('active') && !mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target))
+    mobileNav.classList.remove('active');
+});
+
+// ── Auth state ─────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      currentUserData = snap.exists() ? snap.data() : { name: user.email.split('@')[0], email: user.email };
+    } catch {
+      currentUserData = { name: user.email.split('@')[0], email: user.email };
+    }
+  } else {
+    currentUser = null;
+    currentUserData = null;
+  }
+  updateNavbarAuth();
+});
+</script>
+</body>
+</html>

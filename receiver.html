@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Request Food - FoodShare</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; background: #f9f9f9; color: #333; padding: 20px; }
+  .container { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 0 12px rgba(0,0,0,0.1); }
+  h2 { color: #4caf50; margin-bottom: 20px; text-align: center; }
+  label { display: block; margin-bottom: 6px; font-weight: 600; }
+  input, textarea, select {
+    width: 100%; padding: 10px; margin-bottom: 15px;
+    border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;
+    box-sizing: border-box;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  button {
+    background: #4caf50; border: none; color: white; padding: 12px;
+    border-radius: 4px; font-size: 1rem; cursor: pointer; width: 100%;
+  }
+  button:hover { background: #388e3c; }
+  
+  /* New styles for enhanced features */
+  .delivery-section { display: none; margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px; }
+  .delivery-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .delivery-option { 
+    flex: 1; min-width: 120px; text-align: center; padding: 10px; 
+    background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .delivery-option:hover { border-color: #4caf50; }
+  .delivery-option.selected { border-color: #4caf50; background: rgba(76, 175, 80, 0.1); }
+  .delivery-icon { font-size: 24px; margin-bottom: 5px; color: #4caf50; }
+  .confirmation { display: none; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 4px; }
+  .urgency-indicator { 
+    display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; 
+    margin-left: 10px; font-weight: normal;
+  }
+  .urgency-low { background: #e8f5e9; color: #2e7d32; }
+  .urgency-medium { background: #fff3e0; color: #ef6c00; }
+  .urgency-high { background: #ffebee; color: #c62828; }
+  .form-step { display: none; }
+  .form-step.active { display: block; }
+  .form-navigation { display: flex; justify-content: space-between; margin-top: 20px; }
+  .form-navigation button { width: 48%; }
+  .btn-secondary { background: #757575; }
+  .btn-secondary:hover { background: #616161; }
+  .progress-bar { display: flex; margin-bottom: 20px; }
+  .progress-step { flex: 1; text-align: center; padding: 10px; position: relative; }
+  .progress-step:not(:last-child):after {
+    content: ''; position: absolute; top: 20px; right: -50%; 
+    width: 100%; height: 2px; background: #ddd; z-index: 1;
+  }
+  .progress-step.active:not(:last-child):after { background: #4caf50; }
+  .step-number { 
+    width: 30px; height: 30px; border-radius: 50%; background: #ddd; 
+    display: inline-flex; align-items: center; justify-content: center; 
+    margin-bottom: 5px; z-index: 2; position: relative;
+  }
+  .progress-step.active .step-number { background: #4caf50; color: white; }
+  .progress-step.completed .step-number { background: #4caf50; color: white; }
+  .delivery-estimate { margin-top: 10px; font-size: 0.9rem; color: #666; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Request Food Assistance</h2>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-step active">
+        <div class="step-number">1</div>
+        <div>Basic Info</div>
+      </div>
+      <div class="progress-step">
+        <div class="step-number">2</div>
+        <div>Delivery</div>
+      </div>
+      <div class="progress-step">
+        <div class="step-number">3</div>
+        <div>Review</div>
+      </div>
+    </div>
+    
+    <form id="request-form">
+      <!-- Step 1: Basic Information -->
+      <div class="form-step active" id="step1">
+        <label for="receiver-name">Your Name / Organization</label>
+        <input type="text" id="receiver-name" required placeholder="Your name or organization" />
+        
+        <label for="contact-info">Contact Information</label>
+        <input type="text" id="contact-info" required placeholder="Phone number or email" />
+        
+        <label for="food-type">Type of Food Needed</label>
+        <select id="food-type" required>
+          <option value="" disabled selected>Select food type</option>
+          <option value="cooked">Cooked Meals</option>
+          <option value="groceries">Groceries</option>
+          <option value="fresh-produce">Fresh Produce</option>
+          <option value="packaged">Packaged Food</option>
+          <option value="any">Any Available Food</option>
+        </select>
+        
+        <label for="quantity-needed">Number of People</label>
+        <input type="number" id="quantity-needed" required placeholder="Number of people to feed" min="1" />
+        
+        <label for="urgency">Urgency Level</label>
+        <select id="urgency" required>
+          <option value="" disabled selected>Select urgency</option>
+          <option value="low">Low <span class="urgency-indicator urgency-low">Within 3 days</span></option>
+          <option value="medium">Medium <span class="urgency-indicator urgency-medium">Within 24 hours</span></option>
+          <option value="high">High <span class="urgency-indicator urgency-high">Immediate need</span></option>
+        </select>
+        
+        <label for="pickup-location">Location</label>
+        <input type="text" id="pickup-location" required placeholder="Your pickup/delivery location" />
+        
+        <label for="additional-info">Additional Information</label>
+        <textarea id="additional-info" placeholder="Dietary restrictions, special needs, or other information"></textarea>
+        
+        <div class="form-navigation">
+          <button type="button" class="btn-secondary" disabled>Previous</button>
+          <button type="button" id="next-to-step2">Next</button>
+        </div>
+      </div>
+      
+      <!-- Step 2: Delivery Options -->
+      <div class="form-step" id="step2">
+        <h3>Delivery Assistance</h3>
+        
+        <div id="delivery-question">
+          <p>Do you need help with delivery?</p>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" id="delivery-yes" style="width: 48%;">Yes, I need delivery</button>
+            <button type="button" id="delivery-no" style="width: 48%;" class="btn-secondary">No, I can pick up</button>
+          </div>
+        </div>
+        
+        <div class="delivery-section" id="delivery-options">
+          <p>Select a delivery partner:</p>
+          <div class="delivery-options">
+            <div class="delivery-option" data-partner="uber">
+              <div class="delivery-icon">🚗</div>
+              <div>Uber</div>
+              <div class="delivery-estimate">15-30 min</div>
+            </div>
+            <div class="delivery-option" data-partner="rapido">
+              <div class="delivery-icon">🏍️</div>
+              <div>Rapido</div>
+              <div class="delivery-estimate">10-20 min</div>
+            </div>
+            <div class="delivery-option" data-partner="ola">
+              <div class="delivery-icon">🚕</div>
+              <div>Ola</div>
+              <div class="delivery-estimate">15-30 min</div>
+            </div>
+            <div class="delivery-option" data-partner="volunteer">
+              <div class="delivery-icon">👥</div>
+              <div>Volunteer</div>
+              <div class="delivery-estimate">30-60 min</div>
+            </div>
+          </div>
+          
+          <div id="delivery-details" style="margin-top: 15px; display: none;">
+            <label for="delivery-instructions">Delivery Instructions</label>
+            <textarea id="delivery-instructions" placeholder="Specific instructions for delivery"></textarea>
+          </div>
+        </div>
+        
+        <div class="form-navigation">
+          <button type="button" class="btn-secondary" id="back-to-step1">Previous</button>
+          <button type="button" id="next-to-step3">Next</button>
+        </div>
+      </div>
+      
+      <!-- Step 3: Review and Submit -->
+      <div class="form-step" id="step3">
+        <h3>Review Your Request</h3>
+        
+        <div id="review-summary">
+          <!-- Summary will be populated by JavaScript -->
+        </div>
+        
+        <div class="form-navigation">
+          <button type="button" class="btn-secondary" id="back-to-step2">Previous</button>
+          <button type="submit" id="submit-request">Submit Request</button>
+        </div>
+      </div>
+    </form>
+    
+    <div class="confirmation" id="confirmation">
+      <h3>Request Submitted Successfully!</h3>
+      <p>Your food request has been submitted. We'll notify you when a donor is available.</p>
+      <p id="delivery-confirmation"></p>
+      <p><strong>Request ID:</strong> <span id="request-id"></span></p>
+      <button type="button" id="new-request">Make Another Request</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Form elements
+      const form = document.getElementById('request-form');
+      const steps = document.querySelectorAll('.form-step');
+      const progressSteps = document.querySelectorAll('.progress-step');
+      const nextToStep2 = document.getElementById('next-to-step2');
+      const nextToStep3 = document.getElementById('next-to-step3');
+      const backToStep1 = document.getElementById('back-to-step1');
+      const backToStep2 = document.getElementById('back-to-step2');
+      const deliveryYes = document.getElementById('delivery-yes');
+      const deliveryNo = document.getElementById('delivery-no');
+      const deliveryOptions = document.querySelectorAll('.delivery-option');
+      const deliverySection = document.getElementById('delivery-options');
+      const deliveryDetails = document.getElementById('delivery-details');
+      const confirmation = document.getElementById('confirmation');
+      const reviewSummary = document.getElementById('review-summary');
+      const deliveryConfirmation = document.getElementById('delivery-confirmation');
+      const requestId = document.getElementById('request-id');
+      const newRequestBtn = document.getElementById('new-request');
+      
+      // Form data storage
+      let formData = {
+        delivery: {
+          needed: false,
+          partner: null,
+          instructions: ''
+        }
+      };
+      
+      // Step navigation
+      function goToStep(stepNumber) {
+        steps.forEach(step => step.classList.remove('active'));
+        document.getElementById(`step${stepNumber}`).classList.add('active');
+        
+        // Update progress bar
+        progressSteps.forEach((step, index) => {
+          step.classList.remove('active', 'completed');
+          if (index < stepNumber - 1) {
+            step.classList.add('completed');
+          }
+        });
+        progressSteps[stepNumber - 1].classList.add('active');
+      }
+      
+      // Next to Step 2
+      nextToStep2.addEventListener('click', function() {
+        // Validate step 1
+        const name = document.getElementById('receiver-name').value;
+        const contact = document.getElementById('contact-info').value;
+        const foodType = document.getElementById('food-type').value;
+        const quantity = document.getElementById('quantity-needed').value;
+        const urgency = document.getElementById('urgency').value;
+        const location = document.getElementById('pickup-location').value;
+        
+        if (!name || !contact || !foodType || !quantity || !urgency || !location) {
+          alert('Please fill in all required fields');
+          return;
+        }
+        
+        // Store form data
+        formData.name = name;
+        formData.contact = contact;
+        formData.foodType = foodType;
+        formData.quantity = quantity;
+        formData.urgency = urgency;
+        formData.location = location;
+        formData.additionalInfo = document.getElementById('additional-info').value;
+        
+        goToStep(2);
+      });
+      
+      // Delivery option selection
+      deliveryYes.addEventListener('click', function() {
+        formData.delivery.needed = true;
+        deliverySection.style.display = 'block';
+      });
+      
+      deliveryNo.addEventListener('click', function() {
+        formData.delivery.needed = false;
+        deliverySection.style.display = 'none';
+        deliveryDetails.style.display = 'none';
+      });
+      
+      // Delivery partner selection
+      deliveryOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          deliveryOptions.forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+          formData.delivery.partner = this.getAttribute('data-partner');
+          deliveryDetails.style.display = 'block';
+        });
+      });
+      
+      // Next to Step 3
+      nextToStep3.addEventListener('click', function() {
+        if (formData.delivery.needed && !formData.delivery.partner) {
+          alert('Please select a delivery partner');
+          return;
+        }
+        
+        // Store delivery instructions if provided
+        if (formData.delivery.needed) {
+          formData.delivery.instructions = document.getElementById('delivery-instructions').value;
+        }
+        
+        // Generate and display review summary
+        generateReviewSummary();
+        goToStep(3);
+      });
+      
+      // Back to Step 1
+      backToStep1.addEventListener('click', function() {
+        goToStep(1);
+      });
+      
+      // Back to Step 2
+      backToStep2.addEventListener('click', function() {
+        goToStep(2);
+      });
+      
+      // Form submission
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Generate a request ID
+        const generatedId = 'FS' + Date.now().toString().substr(-6);
+        requestId.textContent = generatedId;
+        
+        // Show delivery confirmation if needed
+        if (formData.delivery.needed) {
+          const partnerNames = {
+            'uber': 'Uber',
+            'rapido': 'Rapido',
+            'ola': 'Ola',
+            'volunteer': 'a volunteer'
+          };
+          deliveryConfirmation.textContent = `A delivery partner (${partnerNames[formData.delivery.partner]}) will be assigned to your request shortly.`;
+        } else {
+          deliveryConfirmation.textContent = 'You will need to pick up the food from the donor.';
+        }
+        
+        // Show confirmation
+        confirmation.style.display = 'block';
+        form.style.display = 'none';
+        
+        // In a real app, you would send the formData to a server here
+        console.log('Form submitted:', formData);
+      });
+      
+      // New request button
+      newRequestBtn.addEventListener('click', function() {
+        // Reset form
+        form.reset();
+        formData = {
+          delivery: {
+            needed: false,
+            partner: null,
+            instructions: ''
+          }
+        };
+        
+        // Reset UI
+        deliverySection.style.display = 'none';
+        deliveryDetails.style.display = 'none';
+        deliveryOptions.forEach(opt => opt.classList.remove('selected'));
+        confirmation.style.display = 'none';
+        form.style.display = 'block';
+        
+        // Go back to step 1
+        goToStep(1);
+      });
+      
+      // Generate review summary
+      function generateReviewSummary() {
+        const urgencyText = {
+          'low': 'Low (Within 3 days)',
+          'medium': 'Medium (Within 24 hours)',
+          'high': 'High (Immediate need)'
+        };
+        
+        const foodTypeText = {
+          'cooked': 'Cooked Meals',
+          'groceries': 'Groceries',
+          'fresh-produce': 'Fresh Produce',
+          'packaged': 'Packaged Food',
+          'any': 'Any Available Food'
+        };
+        
+        let summaryHTML = `
+          <p><strong>Name/Organization:</strong> ${formData.name}</p>
+          <p><strong>Contact:</strong> ${formData.contact}</p>
+          <p><strong>Food Type:</strong> ${foodTypeText[formData.foodType]}</p>
+          <p><strong>Number of People:</strong> ${formData.quantity}</p>
+          <p><strong>Urgency:</strong> ${urgencyText[formData.urgency]}</p>
+          <p><strong>Location:</strong> ${formData.location}</p>
+        `;
+        
+        if (formData.additionalInfo) {
+          summaryHTML += `<p><strong>Additional Info:</strong> ${formData.additionalInfo}</p>`;
+        }
+        
+        if (formData.delivery.needed) {
+          const partnerNames = {
+            'uber': 'Uber',
+            'rapido': 'Rapido',
+            'ola': 'Ola',
+            'volunteer': 'Volunteer'
+          };
+          
+          summaryHTML += `
+            <p><strong>Delivery:</strong> Yes (${partnerNames[formData.delivery.partner]})</p>
+          `;
+          
+          if (formData.delivery.instructions) {
+            summaryHTML += `<p><strong>Delivery Instructions:</strong> ${formData.delivery.instructions}</p>`;
+          }
+        } else {
+          summaryHTML += `<p><strong>Delivery:</strong> No (Self pickup)</p>`;
+        }
+        
+        reviewSummary.innerHTML = summaryHTML;
+      }
+      
+      // Check if delivery is needed based on quantity
+      document.getElementById('quantity-needed').addEventListener('change', function() {
+        const quantity = parseInt(this.value);
+        const deliveryQuestion = document.getElementById('delivery-question');
+        
+        if (quantity < 15) {
+          deliveryQuestion.innerHTML = `
+            <p>Since you're requesting food for ${quantity} people, would you like help with delivery?</p>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" id="delivery-yes" style="width: 48%;">Yes, I need delivery</button>
+              <button type="button" id="delivery-no" style="width: 48%;" class="btn-secondary">No, I can pick up</button>
+            </div>
+          `;
+          
+          // Reattach event listeners
+          document.getElementById('delivery-yes').addEventListener('click', function() {
+            formData.delivery.needed = true;
+            deliverySection.style.display = 'block';
+          });
+          
+          document.getElementById('delivery-no').addEventListener('click', function() {
+            formData.delivery.needed = false;
+            deliverySection.style.display = 'none';
+            deliveryDetails.style.display = 'none';
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

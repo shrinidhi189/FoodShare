@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Profile - FoodShare</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4caf50;
+      --primary-dark: #388e3c;
+      --primary-light: #e8f5e9;
+      --secondary: #ff9800;
+      --secondary-dark: #f57c00;
+      --gray: #757575;
+      --dark: #333;
+      --light: #f9f9f9;
+      --white: #ffffff;
+      --error: #f44336;
+      --success: #4caf50;
+      --warning: #ff9800;
+      --info: #2196f3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--primary-light) 0%, #c8e6c9 100%);
+      min-height: 100vh;
+    }
+
+    /* Header Navigation */
+    .main-header {
+      background: var(--white);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 600;
+      transition: color 0.3s;
+      padding: 0.5rem 0;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .logout-btn {
+      background: var(--error);
+      color: white;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #d32f2f;
+      transform: translateY(-2px);
+    }
+
+    /* Main Profile Layout */
+    .profile-wrapper {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    /* Sidebar */
+    .profile-sidebar {
+      background: var(--white);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 90px;
+      height: fit-content;
+    }
+
+    .profile-cover {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 2rem 1.5rem 3rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 3rem;
+      color: var(--primary);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border: 4px solid var(--white);
+    }
+
+    .profile-name {
+      color: var(--white);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-role {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      color: var(--white);
+    }
+
+    .verified-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      margin-top: 0.5rem;
+    }
+
+    .profile-menu {
+      padding: 1rem 0;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.8rem 1.5rem;
+      color: var(--dark);
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+    }
+
+    .menu-item i {
+      width: 24px;
+      color: var(--gray);
+      transition: color 0.3s;
+    }
+
+    .menu-item:hover {
+      background: var(--primary-light);
+    }
+
+    .menu-item:hover i {
+      color: var(--primary);
+    }
+
+    .menu-item.active {
+      background: var(--primary-light);
+      border-left-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .menu-item.active i {
+      color: var(--primary);
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: #e0e0e0;
+      margin: 0.5rem 1.5rem;
+    }
+
+    /* Main Content */
+    .profile-content {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .content-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--primary-light), var(--white));
+      padding: 1.5rem;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid rgba(76,175,80,0.2);
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--dark);
+    }
+
+    .stat-label {
+      color: var(--gray);
+      font-size: 0.85rem;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      background: #f0f0f0;
+      border-radius: 20px;
+      height: 10px;
+      margin: 1rem 0;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 20px;
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    input.readonly {
+      background: #f5f5f5;
+      color: #666;
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 40px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: var(--error);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #d32f2f;
+    }
+
+    /* Donation Cards */
+    .donations-list {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .donation-card {
+      background: var(--light);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .donation-info h4 {
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    .donation-info p {
+      color: var(--gray);
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .status-badge {
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-available { background: #e8f5e9; color: var(--primary); }
+    .status-claimed { background: #fff3e0; color: var(--warning); }
+    .status-completed { background: #e3f2fd; color: var(--info); }
+    .status-expired { background: #ffebee; color: var(--error); }
+
+    /* Activity Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1.5rem;
+      border-left: 2px solid var(--primary-light);
+      padding-left: 1.5rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .timeline-date {
+      font-size: 0.75rem;
+      color: var(--gray);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Badges */
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+
+    .badge-card {
+      background: linear-gradient(135deg, #fff9e6, var(--white));
+      padding: 1rem;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid #ffe0b2;
+    }
+
+    .badge-card i {
+      font-size: 2.5rem;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .badge-card h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .badge-card p {
+      font-size: 0.7rem;
+      color: var(--gray);
+    }
+
+    /* Alert */
+    .alert {
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .alert.success {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-left: 4px solid var(--primary);
+    }
+
+    .alert.error {
+      background: #ffebee;
+      color: var(--error);
+      border-left: 4px solid var(--error);
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .profile-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .profile-sidebar {
+        position: static;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <div class="container">
+      <nav>
+        <a href="index.html" class="logo">
+          <i class="fas fa-utensils"></i> FoodShare
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <button class="logout-btn" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="alert" class="alert"></div>
+    <div id="profile-container">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading profile...</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTw4Dgzb2F4yfkv5zMO4lNsucSqWS-gXE",
+      authDomain: "food-donation-2fb89.firebaseapp.com",
+      projectId: "food-donation-2fb89",
+      storageBucket: "food-donation-2fb89.firebasestorage.app",
+      messagingSenderId: "1096257872451",
+      appId: "1:1096257872451:web:d78e656c7fdc35c5372af6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentUserData = null;
+
+    function showAlert(message, type) {
+      const alertDiv = document.getElementById('alert');
+      alertDiv.textContent = message;
+      alertDiv.className = `alert ${type}`;
+      alertDiv.style.display = 'block';
+      setTimeout(() => alertDiv.style.display = 'none', 4000);
+    }
+
+    async function loadProfile() {
+      const container = document.getElementById('profile-container');
+      
+      if (!currentUser || !currentUserData) {
+        container.innerHTML = '<div class="loading">Please login to view profile...</div>';
+        return;
+      }
+
+      // Fetch donations
+      let donations = [];
+      let activeDonations = 0;
+      let completedDonations = 0;
+      let totalMeals = 0;
+      
+      if (currentUserData.userType === 'donor') {
+        const donationsQuery = query(collection(db, 'donations'), where('donorId', '==', currentUser.uid));
+        const donationsSnap = await getDocs(donationsQuery);
+        donations = donationsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        activeDonations = donations.filter(d => d.status === 'available').length;
+        completedDonations = donations.filter(d => d.status === 'claimed').length;
+        totalMeals = donations.reduce((sum, d) => sum + (d.quantityPeople || 0), 0);
+      }
+
+      const joinDate = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString() : 'Recently';
+      const displayName = currentUserData.name || currentUser.email.split('@')[0];
+      const userTypeIcon = currentUserData.userType === 'donor' ? 'fa-utensils' : 'fa-hands-helping';
+      const userTypeLabel = currentUserData.userType === 'donor' ? 'Food Donor' : 'Food Recipient';
+
+      const profileHTML = `
+        <div class="profile-wrapper">
+          <!-- Sidebar Menu -->
+          <div class="profile-sidebar">
+            <div class="profile-cover">
+              <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <div class="profile-name">${displayName}</div>
+              <div class="profile-role">
+                <i class="fas ${userTypeIcon}"></i> ${userTypeLabel}
+              </div>
+              <div class="verified-badge">
+                <i class="fas fa-check-circle"></i> Email Verified
+              </div>
+            </div>
+            
+            <div class="profile-menu">
+              <div class="menu-item active" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+              </div>
+              <div class="menu-item" data-section="profile">
+                <i class="fas fa-user-edit"></i> Edit Profile
+              </div>
+              ${currentUserData.userType === 'donor' ? `
+                <div class="menu-item" data-section="donations">
+                  <i class="fas fa-box-open"></i> My Donations
+                </div>
+                <div class="menu-item" data-section="add-donation">
+                  <i class="fas fa-plus-circle"></i> Add New Donation
+                </div>
+                <div class="menu-item" data-section="impact">
+                  <i class="fas fa-chart-line"></i> Impact Stats
+                </div>
+              ` : `
+                <div class="menu-item" data-section="requests">
+                  <i class="fas fa-clipboard-list"></i> My Requests
+                </div>
+                <div class="menu-item" data-section="nearby">
+                  <i class="fas fa-map-marker-alt"></i> Nearby Food
+                </div>
+                <div class="menu-item" data-section="saved">
+                  <i class="fas fa-heart"></i> Saved/Wishlist
+                </div>
+              `}
+              <div class="menu-item" data-section="badges">
+                <i class="fas fa-medal"></i> Achievements
+              </div>
+              <div class="menu-item" data-section="settings">
+                <i class="fas fa-cog"></i> Settings
+              </div>
+              <div class="menu-divider"></div>
+              <div class="menu-item" data-section="support">
+                <i class="fas fa-headset"></i> Help & Support
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
+          <div class="profile-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section active">
+              <div class="section-title">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+              </div>
+              
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <i class="fas fa-calendar-alt"></i>
+                  <div class="stat-number">${joinDate}</div>
+                  <div class="stat-label">Member Since</div>
+                </div>
+                <div class="stat-card">
+                  <i class="fas ${currentUserData.userType === 'donor' ? 'fa-box-open' : 'fa-hand-holding-heart'}"></i>
+                  <div class="stat-number">${currentUserData.userType === 'donor' ? activeDonations : '—'}</div>
+                  <div class="stat-label">${currentUserData.userType === 'donor' ? 'Active Donations' : 'Requests Made'}</div>
+                </div>
+                <div class="stat-card">
+                  <i class="fas fa-check-circle"></i>
+                  <div class="stat-number">${currentUserData.userType === 'donor' ? completedDonations : '—'}</div>
+                  <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                  <i class="fas fa-users"></i>
+                  <div class="stat-number">${totalMeals || 0}</div>
+                  <div class="stat-label">People Helped</div>
+                </div>
+              </div>
+
+              <div class="impact-metric" style="background: var(--primary-light); padding: 1.5rem; border-radius: 16px; margin-top: 1rem;">
+                <h3><i class="fas fa-seedling"></i> Your Impact This Month</h3>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: ${Math.min((totalMeals / 50) * 100, 100)}%"></div>
+                </div>
+                <p>${totalMeals || 0} meals donated • Goal: 50 meals</p>
+              </div>
+
+              <div class="timeline" style="margin-top: 2rem;">
+                <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                <div id="activity-timeline">
+                  <div class="timeline-item">
+                    <div class="timeline-date">Just now</div>
+                    <div class="timeline-title">Welcome to FoodShare!</div>
+                    <div class="timeline-desc">Start donating or requesting food to make an impact</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Profile Section -->
+            <div id="profile-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-user-edit"></i> Edit Profile
+              </div>
+              <form id="edit-profile-form">
+                <div class="form-group">
+                  <label><i class="fas fa-user"></i> Full Name</label>
+                  <input type="text" id="profile-name" value="${currentUserData.name || ''}" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                  <label><i class="fas fa-envelope"></i> Email Address</label>
+                  <input type="email" value="${currentUser.email}" readonly class="readonly">
+                </div>
+                <div class="form-group">
+                  <label><i class="fas fa-phone"></i> Phone Number</label>
+                  <input type="tel" id="profile-phone" value="${currentUserData.phone || ''}" placeholder="Your phone number">
+                </div>
+                <div class="form-group">
+                  <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                  <textarea id="profile-address" rows="3" placeholder="Your address">${currentUserData.address || ''}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+              </form>
+            </div>
+
+            <!-- Change Password Section -->
+            <div id="settings-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-cog"></i> Settings
+              </div>
+              <h3>Change Password</h3>
+              <form id="password-form" style="margin-top: 1rem;">
+                <div class="form-group">
+                  <label><i class="fas fa-lock"></i> Current Password</label>
+                  <input type="password" id="current-password" required>
+                </div>
+                <div class="form-group">
+                  <label><i class="fas fa-key"></i> New Password</label>
+                  <input type="password" id="new-password" required>
+                </div>
+                <div class="form-group">
+                  <label><i class="fas fa-check-circle"></i> Confirm Password</label>
+                  <input type="password" id="confirm-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Password</button>
+              </form>
+              
+              <div class="menu-divider" style="margin: 2rem 0;"></div>
+              
+              <h3 style="color: var(--error);">Danger Zone</h3>
+              <button id="delete-account-btn" class="btn btn-danger" style="margin-top: 1rem;">
+                <i class="fas fa-trash-alt"></i> Delete Account
+              </button>
+            </div>
+
+            <!-- Help & Support -->
+            <div id="support-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-headset"></i> Help & Support
+              </div>
+              <div class="stat-card" style="text-align: left;">
+                <h3><i class="fas fa-envelope"></i> Contact Us</h3>
+                <p>Email: support@foodshare.com</p>
+                <p>Phone: (555) 123-FOOD</p>
+                <p>Hours: Mon-Fri, 9 AM - 6 PM</p>
+              </div>
+              <div class="stat-card" style="margin-top: 1rem; text-align: left;">
+                <h3><i class="fas fa-question-circle"></i> FAQ</h3>
+                <p><strong>How do I donate food?</strong> - Click "Add New Donation" and fill out the form</p>
+                <p><strong>How do I request food?</strong> - Browse nearby listings and click "Request"</p>
+                <p><strong>Is this free?</strong> - Yes, FoodShare is completely free!</p>
+              </div>
+            </div>
+
+            <!-- Achievements/Badges -->
+            <div id="badges-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-medal"></i> Achievements
+              </div>
+              <div class="badges-grid">
+                <div class="badge-card">
+                  <i class="fas fa-seedling"></i>
+                  <h4>First Donation</h4>
+                  <p>${totalMeals > 0 ? '✅ Unlocked' : '🔒 Make first donation'}</p>
+                </div>
+                <div class="badge-card">
+                  <i class="fas fa-heart"></i>
+                  <h4>Community Helper</h4>
+                  <p>${totalMeals >= 10 ? '✅ Unlocked' : '🔒 Help 10 people'}</p>
+                </div>
+                <div class="badge-card">
+                  <i class="fas fa-trophy"></i>
+                  <h4>Star Donor</h4>
+                  <p>${totalMeals >= 50 ? '✅ Unlocked' : '🔒 Donate 50 meals'}</p>
+                </div>
+              </div>
+            </div>
+
+            ${currentUserData.userType === 'donor' ? `
+            <!-- My Donations Section -->
+            <div id="donations-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-box-open"></i> My Donations
+              </div>
+              <div id="donations-list" class="donations-list">
+                ${donations.length === 0 ? '<div class="empty-state">No donations yet. Click "Add New Donation" to get started!</div>' : ''}
+              </div>
+            </div>
+
+            <!-- Add Donation Section -->
+            <div id="add-donation-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-plus-circle"></i> Add New Donation
+              </div>
+              <p>Click the button below to create a new food donation listing.</p>
+              <button id="go-to-delivery" class="btn btn-primary" style="margin-top: 1rem;">
+                <i class="fas fa-utensils"></i> Create Donation
+              </button>
+            </div>
+
+            <!-- Impact Stats -->
+            <div id="impact-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-chart-line"></i> Impact Statistics
+              </div>
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <i class="fas fa-utensils"></i>
+                  <div class="stat-number">${totalMeals}</div>
+                  <div class="stat-label">Total Meals Donated</div>
+                </div>
+                <div class="stat-card">
+                  <i class="fas fa-weight-hanging"></i>
+                  <div class="stat-number">${Math.round(totalMeals * 0.5)}</div>
+                  <div class="stat-label">Waste Saved (kg)</div>
+                </div>
+                <div class="stat-card">
+                  <i class="fas fa-cloud"></i>
+                  <div class="stat-number">${Math.round(totalMeals * 2)}</div>
+                  <div class="stat-label">CO2 Saved (kg)</div>
+                </div>
+              </div>
+            </div>
+            ` : `
+            <!-- Recipient Sections -->
+            <div id="requests-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-clipboard-list"></i> My Requests
+              </div>
+              <div class="empty-state">Your requested donations will appear here</div>
+            </div>
+            <div id="nearby-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-map-marker-alt"></i> Nearby Food
+              </div>
+              <div class="empty-state">Browse available donations near you</div>
+            </div>
+            <div id="saved-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-heart"></i> Saved Donations
+              </div>
+              <div class="empty-state">Your saved/wishlist items will appear here</div>
+            </div>
+            `}
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = profileHTML;
+
+      // Populate donations if donor
+      if (currentUserData.userType === 'donor' && donations.length > 0) {
+        const donationsContainer = document.getElementById('donations-list');
+        if (donationsContainer) {
+          donations.forEach(donation => {
+            const statusClass = donation.status === 'available' ? 'status-available' : 
+                               donation.status === 'claimed' ? 'status-claimed' : 'status-completed';
+            const statusText = donation.status === 'available' ? 'Available' : 
+                              donation.status === 'claimed' ? 'Claimed' : 'Completed';
+            
+            const card = document.createElement('div');
+            card.className = 'donation-card';
+            card.innerHTML = `
+              <div class="donation-info">
+                <h4>${donation.description?.substring(0, 50) || 'Food Donation'}...</h4>
+                <p><i class="fas fa-clock"></i> ${donation.timeDisplay || 'Flexible'}</p>
+                <p><i class="fas fa-map-marker-alt"></i> ${donation.pickupLocation || 'Location provided'}</p>
+              </div>
+              <span class="status-badge ${statusClass}">${statusText}</span>
+            `;
+            donationsContainer.appendChild(card);
+          });
+        }
+      }
+
+      // Menu navigation
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const section = item.dataset.section;
+          document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+          item.classList.add('active');
+          document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+          document.getElementById(`${section}-section`).classList.add('active');
+        });
+      });
+
+      // Edit profile form
+      document.getElementById('edit-profile-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('profile-name').value.trim();
+        const phone = document.getElementById('profile-phone').value.trim();
+        const address = document.getElementById('profile-address').value.trim();
+
+        try {
+          await updateDoc(doc(db, 'users', currentUser.uid), {
+            name, phone, address, updatedAt: new Date()
+          });
+          showAlert('Profile updated successfully!', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } catch (error) {
+          showAlert('Error: ' + error.message, 'error');
+        }
+      });
+
+      // Password form
+      document.getElementById('password-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (newPassword.length < 6) {
+          showAlert('Password must be at least 6 characters', 'error');
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          showAlert('Passwords do not match', 'error');
+          return;
+        }
+
+        try {
+          const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+          await reauthenticateWithCredential(currentUser, credential);
+          await updatePassword(currentUser, newPassword);
+          showAlert('Password updated!', 'success');
+          document.getElementById('password-form').reset();
+        } catch (error) {
+          showAlert(error.code === 'auth/wrong-password' ? 'Current password is incorrect' : 'Error: ' + error.message, 'error');
+        }
+      });
+
+      // Go to delivery page
+      document.getElementById('go-to-delivery')?.addEventListener('click', () => {
+        window.location.href = 'delivery.html';
+      });
+
+      // Delete account
+      document.getElementById('delete-account-btn')?.addEventListener('click', async () => {
+        if (confirm('⚠️ WARNING: This will permanently delete your account and all data. Are you sure?')) {
+          if (confirm('This action cannot be undone. Type "DELETE" to confirm:')) {
+            // Delete account logic here
+            showAlert('Account deletion request submitted. Contact support.', 'error');
+          }
+        }
+      });
+    }
+
+    // Auth check
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        currentUserData = userDoc.exists() ? userDoc.data() : { userType: 'donor' };
+        await loadProfile();
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      await signOut(auth);
+      localStorage.clear();
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

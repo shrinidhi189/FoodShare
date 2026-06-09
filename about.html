@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us - FoodShare</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4caf50;
+      --primary-dark: #388e3c;
+      --secondary: #ff9800;
+      --secondary-dark: #f57c00;
+      --gray: #757575;
+      --dark: #333;
+      --light: #f9f9f9;
+      --white: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; width: 90%; margin: 0 auto; padding: 20px; }
+    header {
+      background: var(--white);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+    .logo { font-size: 1.8rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; }
+    .logo i { margin-right: 10px; }
+    .nav-links { display: flex; list-style: none; gap: 1.5rem; align-items: center; }
+    .nav-links a {
+      text-decoration: none; color: var(--dark); font-weight: 600;
+      transition: color 0.3s ease; padding: 0.5rem 0; position: relative; white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px; background-color: var(--primary); transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── User status pill ── */
+    .user-status-area { display: flex; align-items: center; }
+    .user-status {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: #e8f5e9; padding: 0.4rem 1rem; border-radius: 40px;
+    }
+    .user-status i { font-size: 1.2rem; color: #4caf50; }
+    .user-name { font-weight: 600; color: #333; font-size: 0.9rem; }
+    .logout-btn {
+      background: none; border: none; color: #d32f2f; cursor: pointer;
+      font-weight: 600; font-size: 0.85rem; padding: 0.2rem 0.8rem;
+      border-radius: 20px; transition: all 0.3s ease;
+    }
+    .logout-btn:hover { background: rgba(211, 47, 47, 0.1); }
+    .auth-buttons-small { display: flex; gap: 0.8rem; }
+    .btn-small { padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; text-decoration: none; }
+    .btn-outline-small { border: 1.5px solid #4caf50; color: #4caf50; background: transparent; }
+    .btn-primary-small { background: #4caf50; color: white; }
+    .btn-outline-small:hover { background: #4caf50; color: white; }
+    .btn-primary-small:hover { background: #388e3c; }
+
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        url('https://user-gen-media-assets.s3.amazonaws.com/gemini_images/f34f318d-4853-44aa-9aab-c5854f739b3e.png') center/cover no-repeat;
+      color: white; padding: 6rem 2rem; text-align: center; border-radius: 8px; margin: 2rem 0;
+    }
+    .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+    .hero p { font-size: 1.25rem; max-width: 600px; margin: 0 auto 2rem; }
+    .stats { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem; margin: 3rem 0; }
+    .stat-card {
+      text-align: center; padding: 1.5rem; background: white;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex: 1; min-width: 200px;
+    }
+    .stat-card h3 { font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem; }
+    .stat-card p { color: var(--gray); font-weight: 500; }
+    .feature-card {
+      background: white; border-radius: 10px; box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+      padding: 2rem; width: 100%; max-width: 800px; margin: 2rem auto; text-align: center;
+    }
+    .feature-card h2 { margin-bottom: 1.5rem; color: var(--dark); }
+    .feature-card p { text-align: left; margin-top: 1rem; color: var(--gray); }
+    footer { background: var(--dark); color: #aaa; padding: 3rem 1rem; margin-top: 3rem; }
+    .footer-content {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem; margin-bottom: 2rem;
+    }
+    .footer-section h3 { color: var(--primary); margin-bottom: 1rem; }
+    .footer-section ul { list-style: none; }
+    .footer-section ul li { margin-bottom: 0.5rem; }
+    .footer-section a { color: #ccc; text-decoration: none; transition: color 0.3s ease; }
+    .footer-section a:hover { color: var(--primary); }
+    .copyright { text-align: center; padding-top: 2rem; border-top: 1px solid #444; }
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark); cursor: pointer; }
+    .mobile-nav {
+      position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
+      background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      transition: right 0.3s ease; z-index: 999; padding: 2rem;
+    }
+    .mobile-nav.active { right: 0; }
+    .mobile-nav ul { list-style: none; margin-top: 2rem; }
+    .mobile-nav ul li { margin-bottom: 1.5rem; }
+    .mobile-nav ul a { text-decoration: none; color: var(--dark); font-weight: 600; font-size: 1.1rem; }
+    .close-mobile-nav { position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; background: none; border: none; cursor: pointer; }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+      .hero h1 { font-size: 2.2rem; }
+      .hero p { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <i class="fas fa-utensils"></i>
+          FoodShare
+        </div>
+        <ul class="nav-links">
+  <li><a href="index.html" style="color: var(--primary);">Home</a></li>
+  <li><a href="about.html">About Us</a></li>
+  <li><a href="how-it-works.html">How It Works</a></li>
+  <li><a href="partners.html">Delivery Partners</a></li>
+  <li><a href="contact.html">Contact</a></li>
+  <!-- ⭐ ADD THIS LINE - Profile link (hidden by default) -->
+  <li><a href="profile.html" id="profileLink" style="display: none;"><i class="fas fa-user-circle"></i> My Profile</a></li>
+</ul>
+
+<div id="user-status-area" class="user-status-area"></div>
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+  <i class="fas fa-bars"></i>
+</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="close-mobile-nav" id="closeMobileNav">
+      <i class="fas fa-times"></i>
+    </button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="partners.html">Delivery Partners</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <!-- ⭐ ADD THIS LINE - Profile link for mobile (hidden by default) -->
+      <li><a href="profile.html" id="mobileProfileLink" style="display: none;"><i class="fas fa-user-circle"></i> My Profile</a></li>
+    </ul>
+    <div id="mobileUserStatus" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;"></div>
+</div>
+
+  <section class="hero">
+    <div class="container">
+      <h1>About FoodShare</h1>
+      <p>Learn about our mission to reduce food waste and fight hunger</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="stats">
+      <div class="stat-card"><h3 id="meals-donated">0+</h3><p>Meals Donated Daily</p></div>
+      <div class="stat-card"><h3 id="partner-restaurants">0+</h3><p>Partner Restaurants</p></div>
+      <div class="stat-card"><h3 id="ngo-partners">0+</h3><p>NGO Partners</p></div>
+      <div class="stat-card"><h3 id="people-fed">0+</h3><p>People Fed Daily</p></div>
+    </div>
+
+    <div class="feature-card">
+      <h2>Our Mission</h2>
+      <p>FoodShare is a community-driven initiative dedicated to solving two critical problems simultaneously: 
+        food waste and hunger. We believe that no edible food should go to waste while people in our communities go hungry.</p>
+      <p>Our platform creates a seamless connection between food donors (restaurants, hotels, caterers, and individuals) 
+        and recipients (NGOs, shelters, orphanages, and communities in need). Through technology and community partnerships, 
+        we ensure surplus food reaches those who need it most.</p>
+    </div>
+
+    <div class="feature-card">
+      <h2>Our Story</h2>
+      <p>FoodShare began when our founders witnessed the alarming contrast between food waste in the hospitality industry 
+        and the growing number of food-insecure individuals in our cities. What started as a small volunteer group 
+        collecting surplus food from local restaurants has evolved into a technology-powered platform serving multiple communities.</p>
+      <p>Today, we work with hundreds of food businesses and community organizations, facilitated by a network of 
+        dedicated volunteers and delivery partners. Our impact continues to grow as we expand to new regions and 
+        develop innovative solutions to food redistribution challenges.</p>
+    </div>
+
+    <div class="feature-card">
+      <h2>Our Values</h2>
+      <p><strong>Compassion:</strong> We approach our work with empathy and understanding for both donors and recipients.</p>
+      <p><strong>Efficiency:</strong> We've developed systems that ensure food reaches those in need quickly and safely.</p>
+      <p><strong>Sustainability:</strong> By reducing food waste, we contribute to environmental conservation efforts.</p>
+      <p><strong>Community:</strong> We believe in the power of collective action to create meaningful change.</p>
+      <p><strong>Transparency:</strong> We maintain open communication with all our stakeholders about our operations and impact.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>FoodShare</h3>
+          <p>Connecting surplus food with people in need to reduce waste and fight hunger.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="partners.html">Delivery Partners</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Resources</h3>
+          <ul>
+            <li><a href="#">Food Safety Guidelines</a></li>
+            <li><a href="#">Partner Organizations</a></li>
+            <li><a href="#">Volunteer Opportunities</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact</h3>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@foodshare.org</li>
+            <li><i class="fas fa-phone"></i> (555) 123-FOOD</li>
+            <li><i class="fas fa-map-marker-alt"></i> 123 Community Ave, Hyderabad</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        &copy; 2025 FoodShare — Connecting surplus food with people in need.
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTw4Dgzb2F4yfkv5zMO4lNsucSqWS-gXE",
+      authDomain: "food-donation-2fb89.firebaseapp.com",
+      projectId: "food-donation-2fb89",
+      storageBucket: "food-donation-2fb89.firebasestorage.app",
+      messagingSenderId: "1096257872451",
+      appId: "1:1096257872451:web:d78e656c7fdc35c5372af6",
+      measurementId: "G-0CLBTVV9PV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentUserData = null;
+
+    // ── Stats ──────────────────────────────────────────────────────────────
+    async function updateStats() {
+      try {
+        const donationsSnapshot = await getDocs(query(collection(db, "donations"), where("status", "==", "available")));
+        const totalDonations = donationsSnapshot.size;
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        let donorCount = 0, recipientCount = 0;
+        usersSnapshot.forEach(d => {
+          if (d.data().userType === 'donor') donorCount++;
+          else if (d.data().userType === 'recipient') recipientCount++;
+        });
+        document.getElementById('meals-donated').textContent = (totalDonations * 10).toLocaleString() + '+';
+        document.getElementById('partner-restaurants').textContent = (donorCount || 32) + '+';
+        document.getElementById('ngo-partners').textContent = (recipientCount || 85) + '+';
+        document.getElementById('people-fed').textContent = (totalDonations * 8).toLocaleString() + '+';
+      } catch {
+        document.getElementById('meals-donated').textContent = '1,250+';
+        document.getElementById('partner-restaurants').textContent = '320+';
+        document.getElementById('ngo-partners').textContent = '85+';
+        document.getElementById('people-fed').textContent = '2,500+';
+      }
+    }
+// ── Navbar auth (partners.html style) ─────────────────────────────────
+function updateNavbarAuth() {
+  const userStatusArea = document.getElementById('user-status-area');
+  const mobileUserStatus = document.getElementById('mobileUserStatus');
+  
+  // ⭐ GET PROFILE LINK ELEMENTS
+  const profileLink = document.getElementById('profileLink');
+  const mobileProfileLink = document.getElementById('mobileProfileLink');
+
+  if (currentUser && currentUserData) {
+    const displayName = (currentUserData.name || currentUser.email.split('@')[0]).toUpperCase();
+    const userName = displayName.length > 15 ? displayName.substring(0, 12) + '...' : displayName;
+
+    // ⭐ SHOW PROFILE LINKS WHEN LOGGED IN
+    if (profileLink) profileLink.style.display = 'block';
+    if (mobileProfileLink) mobileProfileLink.style.display = 'block';
+
+    userStatusArea.innerHTML = `
+      <div class="user-status">
+        <i class="fas fa-user-circle"></i>
+        <span class="user-name">${userName}</span>
+        <button class="logout-btn" id="logout-btn-nav"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>`;
+
+    mobileUserStatus.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        <div style="display:flex;align-items:center;gap:0.8rem;">
+          <i class="fas fa-user-circle" style="font-size:1.2rem;color:#4caf50;"></i>
+          <span style="font-weight:600;">${displayName}</span>
+        </div>
+        <button class="logout-btn" id="mobile-logout-btn" style="background:#ffebee;padding:0.5rem;border-radius:6px;width:100%;">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>`;
+
+    document.getElementById('logout-btn-nav')?.addEventListener('click', handleLogout);
+    document.getElementById('mobile-logout-btn')?.addEventListener('click', handleLogout);
+  } else {
+    // ⭐ HIDE PROFILE LINKS WHEN LOGGED OUT
+    if (profileLink) profileLink.style.display = 'none';
+    if (mobileProfileLink) mobileProfileLink.style.display = 'none';
+    
+    userStatusArea.innerHTML = `
+      <div class="auth-buttons-small">
+        <a href="login.html" class="btn-small btn-outline-small">Login</a>
+        <a href="signup.html" class="btn-small btn-primary-small">Register</a>
+      </div>`;
+
+    mobileUserStatus.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        <a href="login.html" class="btn-small btn-outline-small" style="text-align:center;text-decoration:none;">Login</a>
+        <a href="signup.html" class="btn-small btn-primary-small" style="text-align:center;text-decoration:none;">Register</a>
+      </div>`;
+  }
+}
+
+async function handleLogout(e) {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+    localStorage.clear();
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+}
+
+// ── Mobile menu ────────────────────────────────────────────────────────
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.getElementById('mobileNav');
+const closeMobileNav = document.getElementById('closeMobileNav');
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+if (closeMobileNav) closeMobileNav.addEventListener('click', () => mobileNav.classList.remove('active'));
+document.addEventListener('click', (e) => {
+  if (mobileNav?.classList.contains('active') && !mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target))
+    mobileNav.classList.remove('active');
+});
+
+// ── Auth state ─────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      currentUserData = snap.exists() ? snap.data() : { name: user.email.split('@')[0], email: user.email };
+    } catch {
+      currentUserData = { name: user.email.split('@')[0], email: user.email };
+    }
+  } else {
+    currentUser = null;
+    currentUserData = null;
+  }
+  updateNavbarAuth();
+  updateStats();
+});
+
+updateStats();
+setInterval(updateStats, 60000);
+</script>
+</body>
+</html>

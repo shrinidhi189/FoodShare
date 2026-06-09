@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FoodShare - Reduce Waste, Feed People</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4caf50;
+      --primary-dark: #388e3c;
+      --primary-light: #e8f5e9;
+      --secondary: #ff9800;
+      --secondary-dark: #f57c00;
+      --gray: #757575;
+      --dark: #333;
+      --light: #f9f9f9;
+      --white: #ffffff;
+      --error: #f44336;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; width: 90%; margin: 0 auto; padding: 20px; }
+    header {
+      background: var(--white);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky; top: 0; z-index: 1000;
+    }
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.8rem 0; flex-wrap: nowrap; gap: 1rem;
+    }
+    .logo {
+      font-size: 1.8rem; font-weight: bold; color: var(--primary);
+      display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0;
+    }
+     .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 600;
+      transition: color 0.3s ease;
+      padding: 0.5rem 0;
+      position: relative;
+      white-space: nowrap;
+    }
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    .user-status-area { display: flex; align-items: center; flex-shrink: 0; }
+    .user-status {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: #e8f5e9; padding: 0.4rem 1rem; border-radius: 40px;
+    }
+    .user-status i { font-size: 1.2rem; color: #4caf50; }
+    .user-name { font-weight: 600; color: #333; font-size: 0.9rem; }
+    .logout-btn {
+      background: none; border: none; color: #d32f2f; cursor: pointer;
+      font-weight: 600; font-size: 0.85rem; padding: 0.2rem 0.8rem;
+      border-radius: 20px; transition: all 0.3s ease;
+    }
+    .logout-btn:hover { background: rgba(211, 47, 47, 0.1); }
+    .auth-buttons-small { display: flex; gap: 0.8rem; }
+    .btn-small { padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; text-decoration: none; }
+    .btn-outline-small { border: 1.5px solid #4caf50; color: #4caf50; background: transparent; }
+    .btn-primary-small { background: #4caf50; color: white; }
+    .btn-outline-small:hover { background: #4caf50; color: white; }
+    .btn-primary-small:hover { background: #388e3c; }
+
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; color: var(--dark); cursor: pointer; flex-shrink: 0; }
+    .mobile-nav {
+      position: fixed; top: 0; right: -300px; width: 300px; height: 100%;
+      background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      transition: right 0.3s ease; z-index: 999; padding: 2rem;
+    }
+    .mobile-nav.active { right: 0; }
+    .mobile-nav ul { list-style: none; margin-top: 2rem; }
+    .mobile-nav ul li { margin-bottom: 1.5rem; }
+    .mobile-nav ul a { text-decoration: none; color: var(--dark); font-weight: 600; font-size: 1.1rem; }
+    .close-mobile-nav { position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; background: none; border: none; cursor: pointer; }
+
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+      color: white; padding: 6rem 2rem; text-align: center; border-radius: 8px; margin: 2rem 0;
+    }
+    .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+    .hero p { font-size: 1.25rem; max-width: 600px; margin: 0 auto 2rem; }
+    .btn {
+      padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s ease; text-decoration: none; display: inline-block; border: none; font-size: 0.9rem;
+    }
+    .btn-primary { 
+      background: var(--primary); 
+      color: white; 
+      font-size: 1.25rem; 
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 15px rgba(76,175,80,0.3);
+    }
+    .btn-primary:hover { 
+      background: var(--primary-dark); 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76,175,80,0.4);
+    }
+    
+    /* ⭐ WELCOME BANNER - Points to the green button ⭐ */
+    .welcome-banner {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      border-left: 6px solid var(--primary);
+      padding: 1rem 2rem;
+      border-radius: 60px;
+      margin-bottom: 2rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      animation: slideDownBanner 0.5s ease-out;
+    }
+    
+    @keyframes slideDownBanner {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .welcome-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .welcome-icon {
+      background: var(--primary);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+    
+    .welcome-text h3 {
+      color: #1b5e20;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .welcome-text p {
+      color: #2e7d32;
+      font-size: 0.9rem;
+    }
+    
+    .arrow-pointer {
+      font-size: 1.5rem;
+      animation: bounce 1s infinite;
+      color: var(--primary-dark);
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(8px); }
+    }
+    
+    .stats { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem; margin: 3rem 0; }
+    .stat-card {
+      text-align: center; padding: 1.5rem; background: white;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex: 1; min-width: 200px;
+    }
+    .stat-card h3 { font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem; }
+    .stat-card p { color: var(--gray); font-weight: 500; }
+    main.features { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 2rem; margin-bottom: 4rem; }
+    .feature-card {
+      background: white; border-radius: 10px; box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+      padding: 2rem; width: 280px; text-align: center; transition: transform 0.25s ease;
+    }
+    .feature-card:hover { transform: translateY(-8px); }
+    .feature-card i { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
+    .feature-card h3 { margin-bottom: 1rem; font-size: 1.5rem; color: var(--dark); }
+    .feature-card p { font-size: 1rem; color: var(--gray); }
+    footer { background: var(--dark); color: #aaa; padding: 3rem 1rem; }
+    .footer-content {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem; margin-bottom: 2rem;
+    }
+    .footer-section h3 { color: var(--primary); margin-bottom: 1rem; }
+    .footer-section ul { list-style: none; }
+    .footer-section ul li { margin-bottom: 0.5rem; }
+    .footer-section a { color: #ccc; text-decoration: none; transition: color 0.3s ease; }
+    .footer-section a:hover { color: var(--primary); }
+    .copyright { text-align: center; padding-top: 2rem; border-top: 1px solid #444; }
+
+    /* Modals */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      justify-content: center; align-items: center; z-index: 1100;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white; padding: 2rem; border-radius: 20px; max-width: 480px; width: 90%;
+      text-align: center; position: relative; animation: modalFadeIn 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-icon { font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem; }
+    .modal-content h2 { font-size: 1.8rem; color: var(--dark); margin-bottom: 0.5rem; }
+    .modal-content p { color: var(--gray); margin-bottom: 2rem; font-size: 1rem; }
+    .close-modal {
+      position: absolute; top: 16px; right: 20px; font-size: 1.5rem; font-weight: bold;
+      cursor: pointer; color: var(--gray); transition: color 0.3s ease;
+      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    }
+    .close-modal:hover { color: var(--error); background: rgba(0,0,0,0.05); }
+    .modal-buttons { display: flex; flex-direction: column; gap: 1rem; }
+    .modal-btn {
+      display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+      border-radius: 12px; text-decoration: none; transition: all 0.3s ease;
+      border: 2px solid transparent; text-align: left;
+    }
+    .modal-btn i { font-size: 1.8rem; width: 40px; text-align: center; }
+    .btn-content { flex: 1; }
+    .btn-title { display: block; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .btn-subtitle { display: block; font-size: 0.85rem; opacity: 0.8; }
+    .donor-btn { background: linear-gradient(135deg, var(--primary-light) 0%, #fff 100%); border-color: var(--primary); color: var(--primary-dark); }
+    .donor-btn:hover { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; transform: translateY(-2px); }
+    .recipient-btn { background: linear-gradient(135deg, #fff3e0 0%, #fff 100%); border-color: var(--secondary); color: var(--secondary-dark); }
+    .recipient-btn:hover { background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%); color: white; transform: translateY(-2px); }
+    .login-btn { background: linear-gradient(135deg, #e3f2fd 0%, #fff 100%); border-color: #2196f3; color: #1976d2; }
+    .login-btn:hover { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; }
+    .signup-btn { background: linear-gradient(135deg, var(--primary-light) 0%, #fff 100%); border-color: var(--primary); color: var(--primary-dark); }
+    .signup-btn:hover { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; }
+
+    @media (max-width: 950px) { .nav-links { display: none; } .mobile-menu-btn { display: block; } }
+    @media (max-width: 768px) { 
+      .hero h1 { font-size: 2.2rem; } 
+      .welcome-banner { flex-direction: column; text-align: center; }
+      .welcome-content { justify-content: center; }
+      .arrow-pointer { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <i class="fas fa-utensils"></i>
+          FoodShare
+        </div>
+        <ul class="nav-links">
+  <li><a href="index.html" style="color: var(--primary);">Home</a></li>
+  <li><a href="about.html">About Us</a></li>
+  <li><a href="how-it-works.html">How It Works</a></li>
+  <li><a href="partners.html">Delivery Partners</a></li>
+  <li><a href="contact.html">Contact</a></li>
+  <!-- ⭐ ADD THIS LINE - Profile link (hidden by default) -->
+  <li><a href="profile.html" id="profileLink" style="display: none;"><i class="fas fa-user-circle"></i> My Profile</a></li>
+</ul>
+
+<div id="user-status-area" class="user-status-area"></div>
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+  <i class="fas fa-bars"></i>
+</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="close-mobile-nav" id="closeMobileNav">
+      <i class="fas fa-times"></i>
+    </button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="partners.html">Delivery Partners</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <!-- ⭐ ADD THIS LINE - Profile link for mobile (hidden by default) -->
+      <li><a href="profile.html" id="mobileProfileLink" style="display: none;"><i class="fas fa-user-circle"></i> My Profile</a></li>
+    </ul>
+    <div id="mobileUserStatus" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;"></div>
+</div>
+
+  <div class="container">
+    <!-- ⭐ WELCOME BANNER - Appears after login, points to the GREEN button below ⭐ -->
+    <div id="welcomeBanner" class="welcome-banner">
+      <div class="welcome-content">
+        <div class="welcome-icon">
+          <i class="fas fa-smile-wink"></i>
+        </div>
+        <div class="welcome-text">
+          <h3 id="welcomeMessage">✅ You're signed in!</h3>
+          <p>👉 Click the <strong style="color:#2e7d32;">green "Get Started" button below</strong> to continue to your dashboard</p>
+        </div>
+      </div>
+      <div class="arrow-pointer">
+        <i class="fas fa-arrow-down"></i>
+      </div>
+    </div>
+
+    <section class="hero" id="home">
+      <h1>Minimize Food Waste, Share with Those in Need</h1>
+      <p>Connecting individuals and organizations with surplus food to people and communities who need it most.</p>
+      <!-- ONE SINGLE GREEN BUTTON - This is what users need to click -->
+      <button id="getStartedBtn" class="btn btn-primary">Get Started →</button>
+    </section>
+
+    <div class="stats">
+      <div class="stat-card"><h3 id="meals-donated">0+</h3><p>Meals Donated Daily</p></div>
+      <div class="stat-card"><h3 id="partner-restaurants">0+</h3><p>Partner Restaurants</p></div>
+      <div class="stat-card"><h3 id="ngo-partners">0+</h3><p>NGO Partners</p></div>
+      <div class="stat-card"><h3 id="people-fed">0+</h3><p>People Fed Daily</p></div>
+    </div>
+
+    <main class="features" aria-label="Key Features">
+      <article class="feature-card">
+        <i class="fas fa-utensils"></i>
+        <h3>Easy Food Donation</h3>
+        <p>Quickly list your surplus food to connect with people in need near you.</p>
+      </article>
+      <article class="feature-card">
+        <i class="fas fa-truck"></i>
+        <h3>Reliable Delivery</h3>
+        <p>Partner with delivery services for quick and safe transport of food donations.</p>
+      </article>
+      <article class="feature-card">
+        <i class="fas fa-hands-helping"></i>
+        <h3>Support Communities</h3>
+        <p>Help orphanages, NGOs, and underserved communities get nutritious meals.</p>
+      </article>
+      <article class="feature-card">
+        <i class="fas fa-map-marker-alt"></i>
+        <h3>Find Those in Need</h3>
+        <p>Discover people and places close by needing food assistance.</p>
+      </article>
+    </main>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>FoodShare</h3>
+          <p>Connecting surplus food with people in need to reduce waste and fight hunger.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="partners.html">Delivery Partners</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Resources</h3>
+          <ul>
+            <li><a href="#">Food Safety Guidelines</a></li>
+            <li><a href="#">Partner Organizations</a></li>
+            <li><a href="#">Volunteer Opportunities</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact</h3>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@foodshare.org</li>
+            <li><i class="fas fa-phone"></i> (555) 123-FOOD</li>
+            <li><i class="fas fa-map-marker-alt"></i> 123 Community Ave, City</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        &copy; 2025 FoodShare — Connecting surplus food with people in need.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal: logged-in users -->
+  <div id="selectionModal" class="modal">
+    <div class="modal-content">
+      <div class="close-modal" id="closeModalBtn">&times;</div>
+      <div class="modal-icon"><i class="fas fa-hands-helping"></i></div>
+      <h2>Welcome to FoodShare!</h2>
+      <p>Choose how you'd like to get involved</p>
+      <div class="modal-buttons">
+        <a href="#" id="donorRoleBtn" class="modal-btn donor-btn">
+          <i class="fas fa-utensils"></i>
+          <div class="btn-content">
+            <span class="btn-title">I Want to Donate Food</span>
+            <span class="btn-subtitle">Share surplus food with those in need</span>
+          </div>
+        </a>
+        <a href="#" id="recipientRoleBtn" class="modal-btn recipient-btn">
+          <i class="fas fa-hands-helping"></i>
+          <div class="btn-content">
+            <span class="btn-title">I Need Food Assistance</span>
+            <span class="btn-subtitle">Request food for yourself or your community</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: logged-out users -->
+  <div id="loginRequiredModal" class="modal">
+    <div class="modal-content">
+      <div class="close-modal" id="closeLoginModalBtn">&times;</div>
+      <div class="modal-icon"><i class="fas fa-lock"></i></div>
+      <h2>Login Required</h2>
+      <p>Please sign in to continue with FoodShare</p>
+      <div class="modal-buttons">
+        <a href="login.html" class="modal-btn login-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          <div class="btn-content">
+            <span class="btn-title">Login</span>
+            <span class="btn-subtitle">Access your existing account</span>
+          </div>
+        </a>
+        <a href="signup.html" class="modal-btn signup-btn">
+          <i class="fas fa-user-plus"></i>
+          <div class="btn-content">
+            <span class="btn-title">Register</span>
+            <span class="btn-subtitle">Create a new account</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTw4Dgzb2F4yfkv5zMO4lNsucSqWS-gXE",
+      authDomain: "food-donation-2fb89.firebaseapp.com",
+      projectId: "food-donation-2fb89",
+      storageBucket: "food-donation-2fb89.firebasestorage.app",
+      messagingSenderId: "1096257872451",
+      appId: "1:1096257872451:web:d78e656c7fdc35c5372af6",
+      measurementId: "G-0CLBTVV9PV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let currentUserData = null;
+
+    const welcomeBanner = document.getElementById('welcomeBanner');
+    
+    function updateWelcomeBanner() {
+      if (currentUser && currentUserData) {
+        const userName = currentUserData.name || currentUser.email.split('@')[0];
+        const messageEl = document.getElementById('welcomeMessage');
+        if (messageEl) {
+          messageEl.innerHTML = `✅ Welcome back, ${userName}! You're signed in.`;
+        }
+        welcomeBanner.style.display = 'flex';
+      } else {
+        welcomeBanner.style.display = 'none';
+      }
+    }
+
+    async function updateStatsFromFirebase() {
+      try {
+        const donationsSnapshot = await getDocs(query(collection(db, "donations"), where("status", "==", "available")));
+        const totalDonations = donationsSnapshot.size;
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        let donorCount = 0, recipientCount = 0;
+        usersSnapshot.forEach(d => {
+          if (d.data().userType === 'donor') donorCount++;
+          else if (d.data().userType === 'recipient') recipientCount++;
+        });
+        document.getElementById('meals-donated').textContent = (totalDonations * 10).toLocaleString() + '+';
+        document.getElementById('partner-restaurants').textContent = (donorCount || 32) + '+';
+        document.getElementById('ngo-partners').textContent = (recipientCount || 85) + '+';
+        document.getElementById('people-fed').textContent = (totalDonations * 8).toLocaleString() + '+';
+      } catch {
+        document.getElementById('meals-donated').textContent = '1,250+';
+        document.getElementById('partner-restaurants').textContent = '320+';
+        document.getElementById('ngo-partners').textContent = '85+';
+        document.getElementById('people-fed').textContent = '2,500+';
+      }
+    }
+function updateNavbarAuth() {
+  const userStatusArea = document.getElementById('user-status-area');
+  const mobileUserStatus = document.getElementById('mobileUserStatus');
+  
+  // ⭐ GET PROFILE LINK ELEMENTS
+  const profileLink = document.getElementById('profileLink');
+  const mobileProfileLink = document.getElementById('mobileProfileLink');
+
+  if (currentUser && currentUserData) {
+    const displayName = (currentUserData.name || currentUser.email.split('@')[0]).toUpperCase();
+    const userName = displayName.length > 15 ? displayName.substring(0, 12) + '...' : displayName;
+
+    // ⭐ SHOW PROFILE LINKS WHEN LOGGED IN
+    if (profileLink) profileLink.style.display = 'block';
+    if (mobileProfileLink) mobileProfileLink.style.display = 'block';
+
+    userStatusArea.innerHTML = `
+      <div class="user-status">
+        <i class="fas fa-user-circle"></i>
+        <span class="user-name">${userName}</span>
+        <button class="logout-btn" id="logout-btn-nav"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>`;
+
+    mobileUserStatus.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        <div style="display:flex;align-items:center;gap:0.8rem;">
+          <i class="fas fa-user-circle" style="font-size:1.2rem;color:#4caf50;"></i>
+          <span style="font-weight:600;">${displayName}</span>
+        </div>
+        <button class="logout-btn" id="mobile-logout-btn" style="background:#ffebee;padding:0.5rem;border-radius:6px;width:100%;">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>`;
+
+    document.getElementById('logout-btn-nav')?.addEventListener('click', handleLogout);
+    document.getElementById('mobile-logout-btn')?.addEventListener('click', handleLogout);
+  } else {
+    // ⭐ HIDE PROFILE LINKS WHEN LOGGED OUT
+    if (profileLink) profileLink.style.display = 'none';
+    if (mobileProfileLink) mobileProfileLink.style.display = 'none';
+    
+    userStatusArea.innerHTML = `
+      <div class="auth-buttons-small">
+        <a href="login.html" class="btn-small btn-outline-small">Login</a>
+        <a href="signup.html" class="btn-small btn-primary-small">Register</a>
+      </div>`;
+
+    mobileUserStatus.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:0.8rem;">
+        <a href="login.html" class="btn-small btn-outline-small" style="text-align:center;text-decoration:none;">Login</a>
+        <a href="signup.html" class="btn-small btn-primary-small" style="text-align:center;text-decoration:none;">Register</a>
+      </div>`;
+  }
+}
+
+async function handleLogout(e) {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+    localStorage.clear();
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+}
+
+// Mobile menu
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.getElementById('mobileNav');
+const closeMobileNav = document.getElementById('closeMobileNav');
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+if (closeMobileNav) closeMobileNav.addEventListener('click', () => mobileNav.classList.remove('active'));
+document.addEventListener('click', (e) => {
+  if (mobileNav?.classList.contains('active') && !mobileNav.contains(e.target) && !mobileMenuBtn.contains(e.target))
+    mobileNav.classList.remove('active');
+});
+
+// Modal logic - ONLY ONE BUTTON to trigger this (the green Get Started button)
+const getStartedBtn = document.getElementById('getStartedBtn');
+const selectionModal = document.getElementById('selectionModal');
+const loginRequiredModal = document.getElementById('loginRequiredModal');
+
+function openRoleModal() {
+  if (currentUser && currentUserData) {
+    selectionModal.classList.add('active');
+  } else {
+    loginRequiredModal.classList.add('active');
+  }
+}
+
+getStartedBtn?.addEventListener('click', openRoleModal);
+
+document.getElementById('donorRoleBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (currentUserData?.userType === 'donor') window.location.href = 'delivery.html';
+  else { alert('Please register as a donor to donate food.'); window.location.href = 'signup.html'; }
+});
+
+document.getElementById('recipientRoleBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (currentUserData?.userType === 'recipient') window.location.href = 'receiver.html';
+  else { alert('Please register as a recipient to request food.'); window.location.href = 'signup.html'; }
+});
+
+document.getElementById('closeModalBtn')?.addEventListener('click', () => selectionModal.classList.remove('active'));
+document.getElementById('closeLoginModalBtn')?.addEventListener('click', () => loginRequiredModal.classList.remove('active'));
+window.addEventListener('click', (e) => {
+  if (e.target === selectionModal) selectionModal.classList.remove('active');
+  if (e.target === loginRequiredModal) loginRequiredModal.classList.remove('active');
+});
+
+// Auth state
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    try {
+      const snap = await getDoc(doc(db, "users", user.uid));
+      currentUserData = snap.exists() ? snap.data() : { name: user.email.split('@')[0], email: user.email };
+    } catch {
+      currentUserData = { name: user.email.split('@')[0], email: user.email };
+    }
+  } else {
+    currentUser = null;
+    currentUserData = null;
+  }
+  updateNavbarAuth();
+  updateWelcomeBanner();
+  updateStatsFromFirebase();
+});
+
+updateStatsFromFirebase();
+setInterval(updateStatsFromFirebase, 60000);
+</script>
+</body>
+</html>
