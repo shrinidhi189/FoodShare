@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#4caf50" />
   <title>My Profile - FoodShare</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
   <style>
     :root {
       --primary: #4caf50;
@@ -16,95 +19,152 @@
       --dark: #333;
       --light: #f9f9f9;
       --white: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f9f9f9;
+      --border: #e0e0e0;
+      --text: #333;
+      --text-muted: #757575;
       --error: #f44336;
       --success: #4caf50;
       --warning: #ff9800;
       --info: #2196f3;
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+      --shadow-md: 0 10px 40px rgba(0,0,0,0.1);
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    [data-theme="dark"] {
+      --gray: #b0b0b0;
+      --dark: #f5f5f5;
+      --light: #1a1a1a;
+      --white: #242424;
+      --surface: #242424;
+      --surface-2: #1a1a1a;
+      --border: #3a3a3a;
+      --text: #f5f5f5;
+      --text-muted: #b0b0b0;
+      --primary-light: #1f2e1f;
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.4);
+      --shadow-md: 0 10px 40px rgba(0,0,0,0.5);
     }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, var(--primary-light) 0%, #c8e6c9 100%);
+      background-color: var(--surface-2);
+      color: var(--text);
+      line-height: 1.6;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s, color 0.3s;
     }
+    .container { max-width: 1200px; width: 92%; margin: 0 auto; padding: 20px; }
 
-    /* Header Navigation */
-    .main-header {
-      background: var(--white);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    /* ========= HEADER ========= */
+    header {
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      position: sticky; top: 0; z-index: 1000;
     }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
     nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0;
-      flex-wrap: wrap;
-      gap: 1rem;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.8rem 0; flex-wrap: nowrap; gap: 1rem;
     }
-
     .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: var(--primary);
+      font-size: 1.8rem; font-weight: bold; color: var(--primary);
+      display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0;
       text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
-
-    .nav-links {
-      display: flex;
-      list-style: none;
-      gap: 1.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
+    .nav-links { display: flex; list-style: none; gap: 1.5rem; align-items: center; }
     .nav-links a {
-      text-decoration: none;
-      color: var(--dark);
-      font-weight: 600;
-      transition: color 0.3s;
-      padding: 0.5rem 0;
+      text-decoration: none; color: var(--text); font-weight: 600;
+      transition: color 0.3s ease; padding: 0.5rem 0; position: relative; white-space: nowrap;
     }
-
-    .nav-links a:hover {
-      color: var(--primary);
+    .nav-links a:hover { color: var(--primary); }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px; background-color: var(--primary); transition: width 0.3s ease;
     }
-
+    .nav-links a:hover::after, .nav-links a.active-link::after { width: 100%; }
+    .nav-links a.active-link { color: var(--primary); }
+    .user-status-area { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .user-status {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: var(--primary-light); padding: 0.4rem 1rem; border-radius: 40px;
+    }
+    .user-status i { font-size: 1.2rem; color: var(--primary); }
+    .user-name { font-weight: 600; color: var(--text); font-size: 0.9rem; }
+    .icon-btn {
+      background: var(--primary-light); border: none; width: 38px; height: 38px;
+      border-radius: 50%; cursor: pointer; color: var(--primary); font-size: 1rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.2s; position: relative;
+    }
+    .icon-btn:hover { background: var(--primary); color: white; transform: translateY(-1px); }
+    .icon-btn .notif-dot {
+      position: absolute; top: 6px; right: 6px; width: 9px; height: 9px;
+      background: var(--error); border-radius: 50%; border: 2px solid var(--surface);
+    }
     .logout-btn {
-      background: var(--error);
-      color: white;
-      border: none;
-      padding: 0.5rem 1.2rem;
-      border-radius: 40px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
+      background: none; border: none; color: #d32f2f; cursor: pointer;
+      font-weight: 600; font-size: 0.85rem; padding: 0.2rem 0.8rem;
+      border-radius: 20px; transition: all 0.3s ease;
+    }
+    .logout-btn:hover { background: rgba(211, 47, 47, 0.1); }
+    .auth-buttons-small { display: flex; gap: 0.8rem; }
+    .btn-small { padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 6px; font-weight: 600; text-decoration: none; }
+    .btn-outline-small { border: 1.5px solid var(--primary); color: var(--primary); background: transparent; }
+    .btn-primary-small { background: var(--primary); color: white; }
+    .btn-outline-small:hover { background: var(--primary); color: white; }
+    .btn-primary-small:hover { background: var(--primary-dark); }
+
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text); cursor: pointer; flex-shrink: 0; }
+    .mobile-nav {
+      position: fixed; top: 0; right: -320px; width: 320px; height: 100%;
+      background: var(--surface); box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+      transition: right 0.3s ease; z-index: 1500; padding: 2rem;
+    }
+    .mobile-nav.active { right: 0; }
+    .mobile-nav ul { list-style: none; margin-top: 2rem; }
+    .mobile-nav ul li { margin-bottom: 1.5rem; }
+    .mobile-nav ul a { text-decoration: none; color: var(--text); font-weight: 600; font-size: 1.1rem; }
+    .close-mobile-nav { position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; background: none; border: none; cursor: pointer; color: var(--text); }
+
+    /* ========= NOTIFICATIONS PANEL ========= */
+    .notif-panel {
+      position: fixed; top: 70px; right: -400px; width: 380px; max-width: 92vw;
+      max-height: 70vh; background: var(--surface); box-shadow: var(--shadow-md);
+      border-radius: 16px; z-index: 1400; overflow: hidden;
+      display: flex; flex-direction: column; transition: right 0.3s ease;
+    }
+    .notif-panel.active { right: 20px; }
+    .notif-header {
+      padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--primary-light);
+    }
+    .notif-header h3 { font-size: 1rem; color: var(--primary-dark); }
+    .notif-list { overflow-y: auto; flex: 1; }
+    .notif-item {
+      padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; gap: 0.8rem; align-items: flex-start; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .notif-item:hover { background: var(--surface-2); }
+    .notif-item i { color: var(--primary); margin-top: 4px; }
+    .notif-item .notif-body { flex: 1; }
+    .notif-item .notif-title { font-weight: 600; font-size: 0.9rem; }
+    .notif-item .notif-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .notif-item.unread { background: var(--primary-light); }
+
+    /* ========= PROFILE LAYOUT ========= */
+    .page-bg {
+      background: linear-gradient(135deg, var(--primary-light) 0%, color-mix(in srgb, var(--primary) 25%, transparent) 100%);
+      flex: 1;
+    }
+    [data-theme="dark"] .page-bg {
+      background: linear-gradient(135deg, #182218 0%, #0f1a0f 100%);
     }
 
-    .logout-btn:hover {
-      background: #d32f2f;
-      transform: translateY(-2px);
-    }
-
-    /* Main Profile Layout */
     .profile-wrapper {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -112,404 +172,386 @@
       margin: 2rem 0;
     }
 
-    /* Sidebar */
     .profile-sidebar {
-      background: var(--white);
+      background: var(--surface);
       border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 90px;
+      box-shadow: var(--shadow-md);
+      position: sticky; top: 90px;
       height: fit-content;
     }
-
     .profile-cover {
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       padding: 2rem 1.5rem 3rem;
       text-align: center;
       position: relative;
     }
-
+    .profile-avatar-wrap {
+      position: relative; width: 110px; height: 110px; margin: 0 auto 1rem;
+    }
     .profile-avatar {
-      width: 100px;
-      height: 100px;
-      background: var(--white);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1rem;
-      font-size: 3rem;
-      color: var(--primary);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      border: 4px solid var(--white);
+      width: 110px; height: 110px; background: var(--white); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; color: var(--primary);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 4px solid var(--white);
+      overflow: hidden;
     }
-
-    .profile-name {
-      color: var(--white);
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .profile-role {
-      display: inline-block;
-      background: rgba(255,255,255,0.2);
-      padding: 0.3rem 1rem;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      color: var(--white);
-    }
-
-    .verified-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: rgba(255,255,255,0.2);
-      padding: 0.2rem 0.6rem;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      margin-top: 0.5rem;
-    }
-
-    .profile-menu {
-      padding: 1rem 0;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 0.8rem 1.5rem;
-      color: var(--dark);
-      text-decoration: none;
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-upload-btn {
+      position: absolute; bottom: 0; right: 0;
+      background: var(--secondary); color: white; border: 3px solid white;
+      width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
       transition: all 0.3s;
-      cursor: pointer;
-      border-left: 3px solid transparent;
+    }
+    .avatar-upload-btn:hover { background: var(--secondary-dark); transform: scale(1.1); }
+    .profile-name { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.25rem; word-break: break-word; }
+    .profile-role {
+      display: inline-block; background: rgba(255,255,255,0.2);
+      padding: 0.3rem 1rem; border-radius: 40px; font-size: 0.8rem; color: #fff;
+    }
+    .verified-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,0.2); padding: 0.2rem 0.6rem;
+      border-radius: 40px; font-size: 0.7rem; margin-top: 0.5rem; color: #fff;
+    }
+    .profile-streak {
+      margin-top: 0.6rem; display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,193,7,0.25); color: #fff;
+      padding: 0.25rem 0.7rem; border-radius: 40px; font-size: 0.75rem; font-weight: 600;
     }
 
-    .menu-item i {
-      width: 24px;
-      color: var(--gray);
-      transition: color 0.3s;
+    .completion-bar {
+      background: var(--surface-2); padding: 0.8rem 1.2rem;
+      border-bottom: 1px solid var(--border);
     }
-
-    .menu-item:hover {
-      background: var(--primary-light);
+    .completion-bar .label {
+      display: flex; justify-content: space-between; font-size: 0.78rem;
+      color: var(--text-muted); margin-bottom: 0.3rem;
     }
+    .completion-bar .label strong { color: var(--primary); }
+    .completion-bar .bar { background: var(--border); height: 6px; border-radius: 10px; overflow: hidden; }
+    .completion-bar .fill { background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; transition: width 0.6s; }
 
-    .menu-item:hover i {
-      color: var(--primary);
+    .profile-menu { padding: 1rem 0; }
+    .menu-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0.8rem 1.5rem; color: var(--text); text-decoration: none;
+      transition: all 0.3s; cursor: pointer; border-left: 3px solid transparent;
+      font-size: 0.95rem;
     }
-
+    .menu-item i { width: 24px; color: var(--text-muted); transition: color 0.3s; }
+    .menu-item:hover { background: var(--primary-light); }
+    .menu-item:hover i { color: var(--primary); }
     .menu-item.active {
-      background: var(--primary-light);
-      border-left-color: var(--primary);
-      color: var(--primary);
-      font-weight: 600;
+      background: var(--primary-light); border-left-color: var(--primary);
+      color: var(--primary); font-weight: 600;
+    }
+    .menu-item.active i { color: var(--primary); }
+    .menu-divider { height: 1px; background: var(--border); margin: 0.5rem 1.5rem; }
+    .menu-badge {
+      margin-left: auto; background: var(--primary); color: white;
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
     }
 
-    .menu-item.active i {
-      color: var(--primary);
-    }
-
-    .menu-divider {
-      height: 1px;
-      background: #e0e0e0;
-      margin: 0.5rem 1.5rem;
-    }
-
-    /* Main Content */
+    /* Main content */
     .profile-content {
-      background: var(--white);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      background: var(--surface); border-radius: 24px; padding: 2rem;
+      box-shadow: var(--shadow-md); min-height: 500px;
     }
-
-    .content-section {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .content-section.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .content-section { display: none; animation: fadeIn 0.3s ease; }
+    .content-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .section-title {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--primary-light);
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 1.5rem; margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-light);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
     }
+    .section-title i { color: var(--primary); }
+    .section-title .title-actions { margin-left: auto; display: flex; gap: 0.5rem; }
 
-    /* Stats Grid */
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
     }
-
     .stat-card {
-      background: linear-gradient(135deg, var(--primary-light), var(--white));
-      padding: 1.5rem;
-      border-radius: 16px;
-      text-align: center;
-      border: 1px solid rgba(76,175,80,0.2);
+      background: linear-gradient(135deg, var(--primary-light), var(--surface));
+      padding: 1.5rem; border-radius: 16px; text-align: center;
+      border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+      transition: transform 0.3s;
     }
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-card i { font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; }
+    .stat-number { font-size: 2rem; font-weight: bold; color: var(--text); }
+    .stat-label { color: var(--text-muted); font-size: 0.85rem; }
 
-    .stat-card i {
-      font-size: 2rem;
-      color: var(--primary);
-      margin-bottom: 0.5rem;
+    .quick-actions {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.8rem; margin: 1.5rem 0;
     }
-
-    .stat-number {
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--dark);
+    .quick-action {
+      background: var(--surface-2); padding: 1rem; border-radius: 12px;
+      border: 1px solid var(--border); cursor: pointer;
+      display: flex; align-items: center; gap: 0.8rem; transition: all 0.25s;
+      text-decoration: none; color: var(--text);
     }
+    .quick-action:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow-sm); }
+    .quick-action i { font-size: 1.3rem; color: var(--primary); }
+    .quick-action .qa-title { font-weight: 600; font-size: 0.9rem; }
+    .quick-action .qa-sub { font-size: 0.75rem; color: var(--text-muted); }
 
-    .stat-label {
-      color: var(--gray);
-      font-size: 0.85rem;
-    }
-
-    /* Progress Bar */
-    .progress-container {
-      background: #f0f0f0;
-      border-radius: 20px;
-      height: 10px;
-      margin: 1rem 0;
-    }
-
+    .progress-container { background: var(--border); border-radius: 20px; height: 10px; margin: 1rem 0; overflow: hidden; }
     .progress-bar {
       background: linear-gradient(90deg, var(--primary), var(--secondary));
-      border-radius: 20px;
-      height: 100%;
-      width: 0%;
-      transition: width 0.5s ease;
+      border-radius: 20px; height: 100%; width: 0%; transition: width 0.8s ease;
     }
 
-    /* Form Styles */
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
+    .impact-metric { background: var(--primary-light); padding: 1.5rem; border-radius: 16px; margin-top: 1rem; }
+    .impact-metric h3 { margin-bottom: 0.5rem; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; }
+    [data-theme="dark"] .impact-metric h3 { color: var(--primary); }
 
+    .chart-wrap { background: var(--surface-2); padding: 1.2rem; border-radius: 16px; margin-top: 1.5rem; border: 1px solid var(--border); }
+    .chart-wrap h3 { font-size: 1rem; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .chart-wrap h3 i { color: var(--primary); }
+    .chart-canvas-wrap { position: relative; height: 240px; }
+
+    /* Forms */
+    .form-group { margin-bottom: 1.5rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--dark);
+      display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);
+      font-size: 0.9rem;
     }
-
+    label i { color: var(--primary); margin-right: 4px; }
     input, select, textarea {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all 0.3s;
+      width: 100%; padding: 0.8rem 1rem;
+      border: 2px solid var(--border); border-radius: 12px;
+      font-size: 1rem; transition: all 0.3s; font-family: inherit;
+      background: var(--surface); color: var(--text);
     }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    input.readonly {
-      background: #f5f5f5;
-      color: #666;
-    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+    input.readonly { background: var(--surface-2); color: var(--text-muted); }
 
     .btn {
-      padding: 0.8rem 1.5rem;
-      border: none;
-      border-radius: 40px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
+      padding: 0.8rem 1.5rem; border: none; border-radius: 40px;
+      font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+      display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
     }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(76,175,80,0.3); }
+    .btn-secondary { background: var(--secondary); color: white; }
+    .btn-secondary:hover { background: var(--secondary-dark); transform: translateY(-2px); }
+    .btn-danger { background: var(--error); color: white; }
+    .btn-danger:hover { background: #d32f2f; }
+    .btn-outline { background: var(--surface); color: var(--primary); border: 2px solid var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.8rem; }
 
-    .btn-primary {
-      background: var(--primary);
-      color: white;
+    /* Donation cards */
+    .donations-toolbar {
+      display: flex; gap: 0.8rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;
     }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
+    .donations-toolbar input, .donations-toolbar select {
+      flex: 1; min-width: 160px; padding: 0.6rem 0.9rem; font-size: 0.9rem;
     }
-
-    .btn-danger {
-      background: var(--error);
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background: #d32f2f;
-    }
-
-    /* Donation Cards */
-    .donations-list {
-      max-height: 500px;
-      overflow-y: auto;
-    }
-
-    .donation-card {
-      background: var(--light);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-left: 4px solid var(--primary);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .donation-info h4 {
-      margin-bottom: 0.5rem;
-      color: var(--dark);
-    }
-
-    .donation-info p {
-      color: var(--gray);
+    .bulk-actions {
+      display: flex; gap: 0.5rem; margin-bottom: 0.8rem; padding: 0.6rem 0.9rem;
+      background: var(--primary-light); border-radius: 12px; align-items: center;
       font-size: 0.85rem;
-      margin-bottom: 0.25rem;
     }
-
-    .status-badge {
-      padding: 0.2rem 0.8rem;
-      border-radius: 40px;
-      font-size: 0.75rem;
-      font-weight: 600;
+    .donations-list { max-height: 600px; overflow-y: auto; padding-right: 4px; }
+    .donation-card {
+      background: var(--surface-2); border-radius: 12px; padding: 1rem;
+      margin-bottom: 1rem; border-left: 4px solid var(--primary);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem; transition: all 0.3s;
     }
+    .donation-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); transform: translateX(4px); }
+    .donation-card.selected { background: var(--primary-light); }
+    .donation-check { transform: scale(1.2); }
+    .donation-info { flex: 1; min-width: 200px; }
+    .donation-info h4 { margin-bottom: 0.4rem; color: var(--text); }
+    .donation-info p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.2rem; }
+    .donation-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
+    .status-badge { padding: 0.2rem 0.8rem; border-radius: 40px; font-size: 0.75rem; font-weight: 600; }
     .status-available { background: #e8f5e9; color: var(--primary); }
     .status-claimed { background: #fff3e0; color: var(--warning); }
     .status-completed { background: #e3f2fd; color: var(--info); }
     .status-expired { background: #ffebee; color: var(--error); }
 
-    /* Activity Timeline */
-    .timeline {
-      position: relative;
-      padding-left: 2rem;
+    .empty-state {
+      text-align: center; padding: 3rem 1rem; color: var(--text-muted);
+      background: var(--surface-2); border-radius: 12px; border: 2px dashed var(--border);
     }
+    .empty-state i { font-size: 3rem; color: var(--border); margin-bottom: 1rem; display: block; }
 
+    /* Timeline */
+    .timeline { position: relative; padding-left: 0.5rem; margin-top: 1rem; }
     .timeline-item {
-      position: relative;
-      padding-bottom: 1.5rem;
-      border-left: 2px solid var(--primary-light);
-      padding-left: 1.5rem;
+      position: relative; padding-bottom: 1.5rem;
+      border-left: 2px solid var(--primary-light); padding-left: 1.5rem;
     }
-
+    .timeline-item:last-child { border-left-color: transparent; }
     .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -8px;
-      top: 0;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--primary);
+      content: ''; position: absolute; left: -8px; top: 0;
+      width: 14px; height: 14px; border-radius: 50%; background: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-light);
     }
-
-    .timeline-date {
-      font-size: 0.75rem;
-      color: var(--gray);
-      margin-bottom: 0.25rem;
-    }
-
-    .timeline-title {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
+    .timeline-date { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .timeline-title { font-weight: 600; margin-bottom: 0.25rem; color: var(--text); }
+    .timeline-desc { color: var(--text-muted); font-size: 0.85rem; }
 
     /* Badges */
     .badges-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 1rem;
     }
-
     .badge-card {
-      background: linear-gradient(135deg, #fff9e6, var(--white));
-      padding: 1rem;
-      border-radius: 16px;
-      text-align: center;
-      border: 1px solid #ffe0b2;
+      background: linear-gradient(135deg, #fff9e6, var(--surface));
+      padding: 1.2rem; border-radius: 16px; text-align: center;
+      border: 1px solid #ffe0b2; transition: transform 0.3s; cursor: pointer;
+      position: relative; overflow: hidden;
+    }
+    [data-theme="dark"] .badge-card { background: linear-gradient(135deg, #2a2316, var(--surface)); border-color: #4a3b1a; }
+    .badge-card:hover { transform: translateY(-4px); }
+    .badge-card.locked { opacity: 0.55; filter: grayscale(0.6); }
+    .badge-card i { font-size: 2.5rem; color: var(--secondary); margin-bottom: 0.5rem; }
+    .badge-card h4 { font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--text); }
+    .badge-card p { font-size: 0.75rem; color: var(--text-muted); }
+    .badge-card .badge-progress {
+      margin-top: 0.6rem; background: var(--border); height: 4px; border-radius: 4px; overflow: hidden;
+    }
+    .badge-card .badge-progress span {
+      display: block; height: 100%; background: var(--secondary);
     }
 
-    .badge-card i {
-      font-size: 2.5rem;
-      color: var(--secondary);
-      margin-bottom: 0.5rem;
+    /* Notification toggles */
+    .toggle-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.9rem 0; border-bottom: 1px solid var(--border);
     }
-
-    .badge-card h4 {
-      font-size: 0.9rem;
-      margin-bottom: 0.25rem;
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-row .toggle-info strong { display: block; color: var(--text); }
+    .toggle-row .toggle-info span { font-size: 0.8rem; color: var(--text-muted); }
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background-color: #ccc; transition: 0.3s; border-radius: 34px;
     }
-
-    .badge-card p {
-      font-size: 0.7rem;
-      color: var(--gray);
+    .slider::before {
+      position: absolute; content: ""; height: 20px; width: 20px;
+      left: 3px; bottom: 3px; background-color: white;
+      transition: 0.3s; border-radius: 50%;
     }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider::before { transform: translateX(24px); }
 
     /* Alert */
     .alert {
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-      display: none;
+      padding: 1rem; border-radius: 12px; margin-bottom: 1rem;
+      display: none; align-items: center; gap: 10px;
+    }
+    .alert.success { background: var(--primary-light); color: var(--primary-dark); border-left: 4px solid var(--primary); }
+    .alert.error { background: #ffebee; color: var(--error); border-left: 4px solid var(--error); }
+    .alert.info { background: #e3f2fd; color: var(--info); border-left: 4px solid var(--info); }
+    [data-theme="dark"] .alert.success { color: var(--primary); }
+    [data-theme="dark"] .alert.error { background: #2a1818; }
+    [data-theme="dark"] .alert.info { background: #18222a; }
+
+    .loading { text-align: center; padding: 3rem; }
+    .loading i { font-size: 2rem; color: var(--primary); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: var(--dark); color: white;
+      padding: 1rem 1.5rem; border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.3s; z-index: 2000;
+      display: flex; align-items: center; gap: 10px; max-width: 90vw;
+    }
+    [data-theme="dark"] .toast { background: #000; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--primary); }
+    .toast.error { background: var(--error); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      z-index: 2500; display: none; align-items: center; justify-content: center;
+      padding: 1rem; animation: fadeIn 0.2s;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal {
+      background: var(--surface); border-radius: 20px; padding: 2rem;
+      max-width: 480px; width: 100%; box-shadow: var(--shadow-md);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .modal .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem; flex-wrap: wrap; }
+
+    /* Keyboard shortcut help */
+    kbd {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px 6px; font-family: monospace;
+      font-size: 0.8rem; box-shadow: 0 1px 0 var(--border);
     }
 
-    .alert.success {
-      background: var(--primary-light);
-      color: var(--primary-dark);
-      border-left: 4px solid var(--primary);
+    /* Cert preview */
+    .certificate {
+      background: linear-gradient(135deg, #fff9e6, #fff);
+      border: 4px double var(--secondary); padding: 2rem;
+      text-align: center; border-radius: 12px; color: #333;
+    }
+    .certificate h2 { color: var(--primary-dark); margin-bottom: 0.5rem; font-size: 1.8rem; }
+    .certificate .cert-name { font-size: 2rem; margin: 1rem 0; color: var(--secondary-dark); font-style: italic; }
+    .certificate .cert-stats { display: flex; justify-content: space-around; margin: 1.5rem 0; flex-wrap: wrap; gap: 1rem; }
+    .certificate .cert-stats div { text-align: center; }
+    .certificate .cert-stats strong { display: block; font-size: 1.5rem; color: var(--primary); }
+
+    /* ========= FOOTER ========= */
+    footer { background: #1a1a1a; color: #aaa; padding: 3rem 1rem; margin-top: 3rem; }
+    .footer-content {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem; margin-bottom: 2rem;
+      max-width: 1200px; margin-left: auto; margin-right: auto;
+    }
+    .footer-section h3 { color: var(--primary); margin-bottom: 1rem; }
+    .footer-section ul { list-style: none; }
+    .footer-section ul li { margin-bottom: 0.5rem; }
+    .footer-section a { color: #ccc; text-decoration: none; transition: color 0.3s ease; }
+    .footer-section a:hover { color: var(--primary); }
+    .copyright {
+      text-align: center; padding-top: 2rem; border-top: 1px solid #444;
+      max-width: 1200px; margin: 0 auto;
     }
 
-    .alert.error {
-      background: #ffebee;
-      color: var(--error);
-      border-left: 4px solid var(--error);
-    }
-
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 3rem;
-    }
-
-    /* Responsive */
+    @media (max-width: 950px) { .nav-links { display: none; } .mobile-menu-btn { display: block; } }
     @media (max-width: 768px) {
-      .profile-wrapper {
-        grid-template-columns: 1fr;
-      }
-      .profile-sidebar {
-        position: static;
-      }
-      .nav-links {
-        display: none;
-      }
+      .profile-wrapper { grid-template-columns: 1fr; }
+      .profile-sidebar { position: static; }
+      .form-row { grid-template-columns: 1fr; }
+      .section-title .title-actions { margin-left: 0; width: 100%; }
+    }
+
+    /* Print: clean certificate */
+    @media print {
+      header, footer, .profile-sidebar, .mobile-nav, .toast, .modal-backdrop,
+      .section-title .title-actions, nav, .icon-btn { display: none !important; }
+      .profile-content { box-shadow: none; padding: 0; }
+      body, .page-bg { background: white !important; }
+      .content-section { display: block !important; }
+      .content-section:not(#print-cert-section) { display: none !important; }
     }
   </style>
 </head>
 <body>
-  <header class="main-header">
+  <!-- ========= HEADER ========= -->
+  <header>
     <div class="container">
       <nav>
         <a href="index.html" class="logo">
@@ -517,28 +559,110 @@
         </a>
         <ul class="nav-links">
           <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
+          <li><a href="about.html">About Us</a></li>
           <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="partners.html">Delivery Partners</a></li>
           <li><a href="contact.html">Contact</a></li>
+          <li><a href="profile.html" class="active-link"><i class="fas fa-user-circle"></i> My Profile</a></li>
         </ul>
-        <button class="logout-btn" id="logoutBtn">
-          <i class="fas fa-sign-out-alt"></i> Logout
+        <div id="user-status-area" class="user-status-area"></div>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
         </button>
       </nav>
     </div>
   </header>
 
-  <div class="container">
-    <div id="alert" class="alert"></div>
-    <div id="profile-container">
-      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading profile...</div>
+  <div class="mobile-nav" id="mobileNav">
+    <button class="close-mobile-nav" id="closeMobileNav"><i class="fas fa-times"></i></button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="partners.html">Delivery Partners</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="profile.html"><i class="fas fa-user-circle"></i> My Profile</a></li>
+    </ul>
+    <div id="mobileUserStatus" style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;"></div>
+  </div>
+
+  <!-- Notifications panel -->
+  <div class="notif-panel" id="notifPanel">
+    <div class="notif-header">
+      <h3><i class="fas fa-bell"></i> Notifications</h3>
+      <button class="icon-btn" id="markAllRead" title="Mark all as read"><i class="fas fa-check-double"></i></button>
     </div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+
+  <!-- ========= MAIN ========= -->
+  <main class="page-bg">
+    <div class="container">
+      <div id="alert" class="alert"></div>
+      <div id="profile-container">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading your profile...</p></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========= FOOTER ========= -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>FoodShare</h3>
+        <p>Connecting surplus food with people in need to reduce waste and fight hunger.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="partners.html">Delivery Partners</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Resources</h3>
+        <ul>
+          <li><a href="#">Food Safety Guidelines</a></li>
+          <li><a href="#">Partner Organizations</a></li>
+          <li><a href="#">Volunteer Opportunities</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Contact</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i> info@foodshare.org</li>
+          <li><i class="fas fa-phone"></i> (555) 123-FOOD</li>
+          <li><i class="fas fa-map-marker-alt"></i> 123 Community Ave, City</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2025 FoodShare — Connecting surplus food with people in need.
+    </div>
+  </footer>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Generic modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modalContent"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged, signOut,
+      updatePassword, EmailAuthProvider, reauthenticateWithCredential,
+      sendEmailVerification, deleteUser
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, updateDoc, deleteDoc, setDoc,
+      collection, query, where, getDocs, orderBy, limit, serverTimestamp,
+      writeBatch
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDTw4Dgzb2F4yfkv5zMO4lNsucSqWS-gXE",
@@ -555,279 +679,538 @@
 
     let currentUser = null;
     let currentUserData = null;
+    let allDonations = [];
+    let selectedDonations = new Set();
+    let monthlyChart = null;
+    let statusChart = null;
+    let notifications = [];
 
-    function showAlert(message, type) {
-      const alertDiv = document.getElementById('alert');
-      alertDiv.textContent = message;
-      alertDiv.className = `alert ${type}`;
-      alertDiv.style.display = 'block';
-      setTimeout(() => alertDiv.style.display = 'none', 4000);
+    /* ---------- Theme ---------- */
+    const savedTheme = localStorage.getItem('fs-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('fs-theme', next);
+      toast(`Switched to ${next} mode`, 'info');
+      // re-render charts so colors update
+      if (currentUser) setTimeout(renderCharts, 100);
     }
 
+    /* ---------- Helpers ---------- */
+    function toast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.className = `toast ${type}`;
+      const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+      t.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function showAlert(message, type) {
+      const a = document.getElementById('alert');
+      a.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+      a.className = `alert ${type}`;
+      a.style.display = 'flex';
+      setTimeout(() => a.style.display = 'none', 4500);
+    }
+
+    function fmtDate(d) {
+      if (!d) return '—';
+      const date = d.toDate ? d.toDate() : new Date(d);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function timeAgo(d) {
+      if (!d) return 'recently';
+      const date = d.toDate ? d.toDate() : new Date(d);
+      const sec = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (sec < 60) return 'just now';
+      if (sec < 3600) return `${Math.floor(sec/60)}m ago`;
+      if (sec < 86400) return `${Math.floor(sec/3600)}h ago`;
+      if (sec < 2592000) return `${Math.floor(sec/86400)}d ago`;
+      return date.toLocaleDateString();
+    }
+
+    function openModal(html) {
+      const m = document.getElementById('modalContent');
+      m.innerHTML = html;
+      document.getElementById('modalBackdrop').classList.add('active');
+    }
+    function closeModal() { document.getElementById('modalBackdrop').classList.remove('active'); }
+    document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'modalBackdrop') closeModal();
+    });
+
+    /* ---------- Navbar auth widget ---------- */
+    function updateNavbarAuth() {
+      const userStatusArea = document.getElementById('user-status-area');
+      const mobileUserStatus = document.getElementById('mobileUserStatus');
+
+      if (currentUser && currentUserData) {
+        const displayName = (currentUserData.name || currentUser.email.split('@')[0]).toUpperCase();
+        const userName = displayName.length > 15 ? displayName.substring(0, 12) + '...' : displayName;
+        const unread = notifications.filter(n => !n.read).length;
+
+        userStatusArea.innerHTML = `
+          <button class="icon-btn" id="themeToggle" title="Toggle dark mode"><i class="fas fa-${savedTheme === 'dark' ? 'sun' : 'moon'}"></i></button>
+          <button class="icon-btn" id="notifBtn" title="Notifications">
+            <i class="fas fa-bell"></i>${unread ? '<span class="notif-dot"></span>' : ''}
+          </button>
+          <div class="user-status">
+            <i class="fas fa-user-circle"></i>
+            <span class="user-name">${userName}</span>
+            <button class="logout-btn" id="logout-btn-nav"><i class="fas fa-sign-out-alt"></i> Logout</button>
+          </div>`;
+
+        mobileUserStatus.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:0.8rem;">
+            <div style="display:flex;align-items:center;gap:0.8rem;">
+              <i class="fas fa-user-circle" style="font-size:1.2rem;color:var(--primary);"></i>
+              <span style="font-weight:600;color:var(--text);">${displayName}</span>
+            </div>
+            <button class="btn btn-outline btn-sm" id="mobile-theme-btn"><i class="fas fa-${savedTheme === 'dark' ? 'sun' : 'moon'}"></i> Toggle theme</button>
+            <button class="logout-btn" id="mobile-logout-btn" style="background:#ffebee;padding:0.5rem;border-radius:6px;width:100%;">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </div>`;
+
+        document.getElementById('logout-btn-nav')?.addEventListener('click', handleLogout);
+        document.getElementById('mobile-logout-btn')?.addEventListener('click', handleLogout);
+        document.getElementById('themeToggle')?.addEventListener('click', () => { toggleTheme(); updateNavbarAuth(); });
+        document.getElementById('mobile-theme-btn')?.addEventListener('click', () => { toggleTheme(); updateNavbarAuth(); });
+        document.getElementById('notifBtn')?.addEventListener('click', toggleNotifPanel);
+      } else {
+        userStatusArea.innerHTML = `
+          <button class="icon-btn" id="themeToggle" title="Toggle dark mode"><i class="fas fa-${savedTheme === 'dark' ? 'sun' : 'moon'}"></i></button>
+          <div class="auth-buttons-small">
+            <a href="login.html" class="btn-small btn-outline-small">Login</a>
+            <a href="signup.html" class="btn-small btn-primary-small">Register</a>
+          </div>`;
+        mobileUserStatus.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:0.8rem;">
+            <a href="login.html" class="btn-small btn-outline-small" style="text-align:center;text-decoration:none;">Login</a>
+            <a href="signup.html" class="btn-small btn-primary-small" style="text-align:center;text-decoration:none;">Register</a>
+          </div>`;
+        document.getElementById('themeToggle')?.addEventListener('click', () => { toggleTheme(); updateNavbarAuth(); });
+      }
+    }
+
+    async function handleLogout(e) {
+      e?.preventDefault();
+      try {
+        await signOut(auth);
+        // keep theme prefs
+        const theme = localStorage.getItem('fs-theme');
+        localStorage.clear();
+        if (theme) localStorage.setItem('fs-theme', theme);
+        window.location.href = 'index.html';
+      } catch (err) { console.error(err); }
+    }
+
+    /* ---------- Notifications ---------- */
+    function buildNotificationsFromDonations() {
+      notifications = [];
+      allDonations.slice(0, 8).forEach(d => {
+        if (d.status === 'claimed') {
+          notifications.push({
+            id: 'n-' + d.id,
+            icon: 'hand-holding-heart',
+            title: `Someone claimed "${(d.description || 'your donation').substring(0, 40)}"`,
+            time: timeAgo(d.updatedAt || d.createdAt),
+            read: false,
+          });
+        } else if (d.status === 'completed') {
+          notifications.push({
+            id: 'n-' + d.id,
+            icon: 'check-circle',
+            title: `Donation completed — fed ${d.quantityPeople || '?'} people`,
+            time: timeAgo(d.updatedAt || d.createdAt),
+            read: true,
+          });
+        }
+      });
+      // welcome notif
+      notifications.push({
+        id: 'welcome',
+        icon: 'star',
+        title: 'Welcome to FoodShare! Complete your profile to earn your first badge.',
+        time: 'when you joined',
+        read: false,
+      });
+    }
+
+    function renderNotifPanel() {
+      const list = document.getElementById('notifList');
+      if (!notifications.length) {
+        list.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-muted);">No notifications yet.</div>';
+        return;
+      }
+      list.innerHTML = notifications.map(n => `
+        <div class="notif-item ${n.read ? '' : 'unread'}" data-id="${n.id}">
+          <i class="fas fa-${n.icon}"></i>
+          <div class="notif-body">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-time">${n.time}</div>
+          </div>
+        </div>`).join('');
+      list.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const n = notifications.find(x => x.id === el.dataset.id);
+          if (n) { n.read = true; renderNotifPanel(); updateNavbarAuth(); }
+        });
+      });
+    }
+
+    function toggleNotifPanel() {
+      const panel = document.getElementById('notifPanel');
+      panel.classList.toggle('active');
+      if (panel.classList.contains('active')) renderNotifPanel();
+    }
+    document.getElementById('markAllRead').addEventListener('click', () => {
+      notifications.forEach(n => n.read = true);
+      renderNotifPanel(); updateNavbarAuth();
+      toast('All marked as read', 'success');
+    });
+
+    /* ---------- Mobile menu ---------- */
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => document.getElementById('mobileNav').classList.add('active'));
+    document.getElementById('closeMobileNav')?.addEventListener('click', () => document.getElementById('mobileNav').classList.remove('active'));
+
+    /* ---------- Profile completion ---------- */
+    function profileCompletion() {
+      const fields = ['name', 'phone', 'city', 'address', 'bio', 'avatar'];
+      const filled = fields.filter(f => !!(currentUserData?.[f])).length + (currentUser?.emailVerified ? 1 : 0);
+      return Math.round((filled / (fields.length + 1)) * 100);
+    }
+
+    /* ---------- Streak ---------- */
+    function calculateStreak() {
+      if (!allDonations.length) return 0;
+      const days = new Set();
+      allDonations.forEach(d => {
+        const date = d.createdAt?.toDate ? d.createdAt.toDate() : (d.createdAt ? new Date(d.createdAt) : null);
+        if (date) days.add(date.toDateString());
+      });
+      let streak = 0;
+      const day = new Date();
+      while (days.has(day.toDateString())) { streak++; day.setDate(day.getDate() - 1); }
+      return streak;
+    }
+
+    /* ---------- Profile loading ---------- */
     async function loadProfile() {
       const container = document.getElementById('profile-container');
-      
+
       if (!currentUser || !currentUserData) {
-        container.innerHTML = '<div class="loading">Please login to view profile...</div>';
+        container.innerHTML = '<div class="loading">Please login to view your profile...</div>';
         return;
       }
 
-      // Fetch donations
-      let donations = [];
-      let activeDonations = 0;
-      let completedDonations = 0;
-      let totalMeals = 0;
-      
+      // Fetch donations (if donor)
+      allDonations = [];
+      let activeDonations = 0, completedDonations = 0, totalMeals = 0, claimedCount = 0;
+
       if (currentUserData.userType === 'donor') {
-        const donationsQuery = query(collection(db, 'donations'), where('donorId', '==', currentUser.uid));
-        const donationsSnap = await getDocs(donationsQuery);
-        donations = donationsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        activeDonations = donations.filter(d => d.status === 'available').length;
-        completedDonations = donations.filter(d => d.status === 'claimed').length;
-        totalMeals = donations.reduce((sum, d) => sum + (d.quantityPeople || 0), 0);
+        try {
+          const dq = query(collection(db, 'donations'), where('donorId', '==', currentUser.uid));
+          const snap = await getDocs(dq);
+          allDonations = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          allDonations.sort((a, b) => {
+            const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return tb - ta;
+          });
+          activeDonations = allDonations.filter(d => d.status === 'available').length;
+          claimedCount = allDonations.filter(d => d.status === 'claimed').length;
+          completedDonations = allDonations.filter(d => d.status === 'completed').length;
+          totalMeals = allDonations.reduce((s, d) => s + (Number(d.quantityPeople) || 0), 0);
+        } catch (err) { console.warn('Donations fetch failed', err); }
       }
 
-      const joinDate = currentUser.metadata.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString() : 'Recently';
+      buildNotificationsFromDonations();
+      const streak = calculateStreak();
+
+      const joinDate = currentUser.metadata.creationTime
+        ? new Date(currentUser.metadata.creationTime).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        : 'Recently';
       const displayName = currentUserData.name || currentUser.email.split('@')[0];
       const userTypeIcon = currentUserData.userType === 'donor' ? 'fa-utensils' : 'fa-hands-helping';
       const userTypeLabel = currentUserData.userType === 'donor' ? 'Food Donor' : 'Food Recipient';
+      const avatarUrl = currentUserData.avatar || '';
 
-      const profileHTML = `
+      const monthlyGoal = currentUserData.monthlyGoal || 50;
+      const progressPct = Math.min((totalMeals / monthlyGoal) * 100, 100);
+
+      const prefs = currentUserData.notifications || { email: true, sms: false, requests: true, marketing: false };
+      const privacy = currentUserData.privacy || { profilePublic: true, shareImpact: true, showInLeaderboard: true };
+      const isDonor = currentUserData.userType === 'donor';
+      const completion = profileCompletion();
+
+      // Compute simple community rank: based on totalMeals
+      const communityRank = totalMeals >= 500 ? 'Top 1%' : totalMeals >= 100 ? 'Top 10%' : totalMeals >= 20 ? 'Top 25%' : 'Rising';
+
+      container.innerHTML = `
         <div class="profile-wrapper">
-          <!-- Sidebar Menu -->
-          <div class="profile-sidebar">
+          <!-- Sidebar -->
+          <aside class="profile-sidebar">
             <div class="profile-cover">
-              <div class="profile-avatar">
-                <i class="fas fa-user-circle"></i>
+              <div class="profile-avatar-wrap">
+                <div class="profile-avatar" id="avatarDisplay">
+                  ${avatarUrl ? `<img src="${avatarUrl}" alt="avatar">` : '<i class="fas fa-user-circle"></i>'}
+                </div>
+                <label class="avatar-upload-btn" title="Upload photo">
+                  <i class="fas fa-camera"></i>
+                  <input type="file" id="avatar-input" accept="image/*" hidden>
+                </label>
               </div>
               <div class="profile-name">${displayName}</div>
-              <div class="profile-role">
-                <i class="fas ${userTypeIcon}"></i> ${userTypeLabel}
+              <div class="profile-role"><i class="fas ${userTypeIcon}"></i> ${userTypeLabel}</div>
+              <div style="margin-top:0.5rem;">
+                <span class="verified-badge">
+                  <i class="fas fa-${currentUser.emailVerified ? 'check-circle' : 'exclamation-circle'}"></i>
+                  ${currentUser.emailVerified ? 'Email Verified' : 'Email Unverified'}
+                </span>
               </div>
-              <div class="verified-badge">
-                <i class="fas fa-check-circle"></i> Email Verified
-              </div>
+              ${streak > 0 ? `<div><span class="profile-streak"><i class="fas fa-fire"></i> ${streak}-day streak</span></div>` : ''}
             </div>
-            
-            <div class="profile-menu">
-              <div class="menu-item active" data-section="dashboard">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-              </div>
-              <div class="menu-item" data-section="profile">
-                <i class="fas fa-user-edit"></i> Edit Profile
-              </div>
-              ${currentUserData.userType === 'donor' ? `
-                <div class="menu-item" data-section="donations">
-                  <i class="fas fa-box-open"></i> My Donations
-                </div>
-                <div class="menu-item" data-section="add-donation">
-                  <i class="fas fa-plus-circle"></i> Add New Donation
-                </div>
-                <div class="menu-item" data-section="impact">
-                  <i class="fas fa-chart-line"></i> Impact Stats
-                </div>
-              ` : `
-                <div class="menu-item" data-section="requests">
-                  <i class="fas fa-clipboard-list"></i> My Requests
-                </div>
-                <div class="menu-item" data-section="nearby">
-                  <i class="fas fa-map-marker-alt"></i> Nearby Food
-                </div>
-                <div class="menu-item" data-section="saved">
-                  <i class="fas fa-heart"></i> Saved/Wishlist
-                </div>
-              `}
-              <div class="menu-item" data-section="badges">
-                <i class="fas fa-medal"></i> Achievements
-              </div>
-              <div class="menu-item" data-section="settings">
-                <i class="fas fa-cog"></i> Settings
-              </div>
-              <div class="menu-divider"></div>
-              <div class="menu-item" data-section="support">
-                <i class="fas fa-headset"></i> Help & Support
-              </div>
-            </div>
-          </div>
 
-          <!-- Main Content Area -->
-          <div class="profile-content">
-            <!-- Dashboard Section -->
+            <div class="completion-bar">
+              <div class="label">
+                <span>Profile completion</span><strong>${completion}%</strong>
+              </div>
+              <div class="bar"><div class="fill" style="width:${completion}%"></div></div>
+            </div>
+
+            <nav class="profile-menu">
+              <div class="menu-item active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
+              <div class="menu-item" data-section="profile"><i class="fas fa-user-edit"></i> Edit Profile</div>
+              ${isDonor ? `
+                <div class="menu-item" data-section="donations"><i class="fas fa-box-open"></i> My Donations <span class="menu-badge">${allDonations.length}</span></div>
+                <div class="menu-item" data-section="add-donation"><i class="fas fa-plus-circle"></i> Add New Donation</div>
+                <div class="menu-item" data-section="impact"><i class="fas fa-chart-line"></i> Impact Stats</div>
+                <div class="menu-item" data-section="certificate"><i class="fas fa-certificate"></i> Impact Certificate</div>
+              ` : `
+                <div class="menu-item" data-section="requests"><i class="fas fa-clipboard-list"></i> My Requests</div>
+                <div class="menu-item" data-section="nearby"><i class="fas fa-map-marker-alt"></i> Nearby Food</div>
+                <div class="menu-item" data-section="saved"><i class="fas fa-heart"></i> Saved/Wishlist</div>
+              `}
+              <div class="menu-item" data-section="badges"><i class="fas fa-medal"></i> Achievements</div>
+              <div class="menu-item" data-section="share"><i class="fas fa-share-alt"></i> Share Profile</div>
+              <div class="menu-item" data-section="notifications"><i class="fas fa-bell"></i> Notifications</div>
+              <div class="menu-item" data-section="privacy"><i class="fas fa-user-shield"></i> Privacy</div>
+              <div class="menu-item" data-section="settings"><i class="fas fa-cog"></i> Settings</div>
+              <div class="menu-divider"></div>
+              <div class="menu-item" data-section="support"><i class="fas fa-headset"></i> Help & Support</div>
+              <div class="menu-item" data-section="shortcuts"><i class="fas fa-keyboard"></i> Shortcuts</div>
+              <div class="menu-item" id="sidebar-logout" style="color:var(--error);"><i class="fas fa-sign-out-alt" style="color:var(--error);"></i> Logout</div>
+            </nav>
+          </aside>
+
+          <!-- Main -->
+          <section class="profile-content">
+
+            <!-- DASHBOARD -->
             <div id="dashboard-section" class="content-section active">
               <div class="section-title">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
+                <div class="title-actions">
+                  <button class="btn btn-outline btn-sm" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
+                </div>
               </div>
-              
+
               <div class="stats-grid">
                 <div class="stat-card">
                   <i class="fas fa-calendar-alt"></i>
-                  <div class="stat-number">${joinDate}</div>
+                  <div class="stat-number" style="font-size:1.3rem;">${joinDate}</div>
                   <div class="stat-label">Member Since</div>
                 </div>
                 <div class="stat-card">
-                  <i class="fas ${currentUserData.userType === 'donor' ? 'fa-box-open' : 'fa-hand-holding-heart'}"></i>
-                  <div class="stat-number">${currentUserData.userType === 'donor' ? activeDonations : '—'}</div>
-                  <div class="stat-label">${currentUserData.userType === 'donor' ? 'Active Donations' : 'Requests Made'}</div>
+                  <i class="fas ${isDonor ? 'fa-box-open' : 'fa-hand-holding-heart'}"></i>
+                  <div class="stat-number">${isDonor ? activeDonations : 0}</div>
+                  <div class="stat-label">${isDonor ? 'Active Donations' : 'Active Requests'}</div>
                 </div>
                 <div class="stat-card">
                   <i class="fas fa-check-circle"></i>
-                  <div class="stat-number">${currentUserData.userType === 'donor' ? completedDonations : '—'}</div>
+                  <div class="stat-number">${isDonor ? completedDonations : 0}</div>
                   <div class="stat-label">Completed</div>
                 </div>
                 <div class="stat-card">
                   <i class="fas fa-users"></i>
-                  <div class="stat-number">${totalMeals || 0}</div>
+                  <div class="stat-number">${totalMeals}</div>
                   <div class="stat-label">People Helped</div>
                 </div>
-              </div>
-
-              <div class="impact-metric" style="background: var(--primary-light); padding: 1.5rem; border-radius: 16px; margin-top: 1rem;">
-                <h3><i class="fas fa-seedling"></i> Your Impact This Month</h3>
-                <div class="progress-container">
-                  <div class="progress-bar" style="width: ${Math.min((totalMeals / 50) * 100, 100)}%"></div>
+                <div class="stat-card">
+                  <i class="fas fa-trophy"></i>
+                  <div class="stat-number" style="font-size:1.3rem;">${communityRank}</div>
+                  <div class="stat-label">Community Rank</div>
                 </div>
-                <p>${totalMeals || 0} meals donated • Goal: 50 meals</p>
+                <div class="stat-card">
+                  <i class="fas fa-fire"></i>
+                  <div class="stat-number">${streak}</div>
+                  <div class="stat-label">Day Streak</div>
+                </div>
               </div>
 
-              <div class="timeline" style="margin-top: 2rem;">
-                <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                <div id="activity-timeline">
-                  <div class="timeline-item">
-                    <div class="timeline-date">Just now</div>
-                    <div class="timeline-title">Welcome to FoodShare!</div>
-                    <div class="timeline-desc">Start donating or requesting food to make an impact</div>
-                  </div>
+              <h3 style="margin-bottom:0.8rem;"><i class="fas fa-bolt" style="color:var(--primary);"></i> Quick Actions</h3>
+              <div class="quick-actions">
+                ${isDonor ? `
+                <a class="quick-action" href="delivery.html">
+                  <i class="fas fa-plus-circle"></i>
+                  <div><div class="qa-title">Add donation</div><div class="qa-sub">Share surplus food</div></div>
+                </a>
+                <div class="quick-action" data-jump="donations">
+                  <i class="fas fa-list"></i>
+                  <div><div class="qa-title">View donations</div><div class="qa-sub">${allDonations.length} total</div></div>
+                </div>
+                <div class="quick-action" data-jump="certificate">
+                  <i class="fas fa-certificate"></i>
+                  <div><div class="qa-title">Get certificate</div><div class="qa-sub">Showcase impact</div></div>
+                </div>
+                ` : `
+                <a class="quick-action" href="receiver.html">
+                  <i class="fas fa-search-location"></i>
+                  <div><div class="qa-title">Find food</div><div class="qa-sub">Browse nearby</div></div>
+                </a>
+                `}
+                <div class="quick-action" data-jump="badges">
+                  <i class="fas fa-medal"></i>
+                  <div><div class="qa-title">Achievements</div><div class="qa-sub">Unlock badges</div></div>
+                </div>
+                <div class="quick-action" data-jump="share">
+                  <i class="fas fa-share-alt"></i>
+                  <div><div class="qa-title">Share profile</div><div class="qa-sub">Invite friends</div></div>
+                </div>
+              </div>
+
+              <div class="impact-metric">
+                <h3><i class="fas fa-seedling"></i> Your Monthly Impact Goal</h3>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width:${progressPct}%"></div>
+                </div>
+                <p style="display:flex;justify-content:space-between;font-size:0.9rem;">
+                  <span><strong>${totalMeals}</strong> of <strong>${monthlyGoal}</strong> meals</span>
+                  <span>${Math.round(progressPct)}% complete</span>
+                </p>
+              </div>
+
+              ${isDonor ? `
+              <div class="chart-wrap">
+                <h3><i class="fas fa-chart-bar"></i> Donations over the last 6 months</h3>
+                <div class="chart-canvas-wrap"><canvas id="monthlyChart"></canvas></div>
+              </div>
+              <div class="chart-wrap">
+                <h3><i class="fas fa-chart-pie"></i> Status breakdown</h3>
+                <div class="chart-canvas-wrap"><canvas id="statusChart"></canvas></div>
+              </div>
+              ` : ''}
+
+              <div style="margin-top:2rem;">
+                <h3 style="margin-bottom:1rem;"><i class="fas fa-history" style="color:var(--primary);"></i> Recent Activity</h3>
+                <div class="timeline" id="activity-timeline">
+                  ${buildTimelineHTML()}
                 </div>
               </div>
             </div>
 
-            <!-- Edit Profile Section -->
+            <!-- EDIT PROFILE -->
             <div id="profile-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-user-edit"></i> Edit Profile
-              </div>
+              <div class="section-title"><i class="fas fa-user-edit"></i> Edit Profile</div>
               <form id="edit-profile-form">
-                <div class="form-group">
-                  <label><i class="fas fa-user"></i> Full Name</label>
-                  <input type="text" id="profile-name" value="${currentUserData.name || ''}" placeholder="Your full name">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" id="profile-name" value="${currentUserData.name || ''}" placeholder="Your full name" required>
+                  </div>
+                  <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email (read-only)</label>
+                    <input type="email" value="${currentUser.email}" readonly class="readonly">
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label><i class="fas fa-envelope"></i> Email Address</label>
-                  <input type="email" value="${currentUser.email}" readonly class="readonly">
-                </div>
-                <div class="form-group">
-                  <label><i class="fas fa-phone"></i> Phone Number</label>
-                  <input type="tel" id="profile-phone" value="${currentUserData.phone || ''}" placeholder="Your phone number">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone Number</label>
+                    <input type="tel" id="profile-phone" value="${currentUserData.phone || ''}" placeholder="(555) 555-5555">
+                  </div>
+                  <div class="form-group">
+                    <label><i class="fas fa-city"></i> City</label>
+                    <input type="text" id="profile-city" value="${currentUserData.city || ''}" placeholder="Your city">
+                  </div>
                 </div>
                 <div class="form-group">
                   <label><i class="fas fa-map-marker-alt"></i> Address</label>
-                  <textarea id="profile-address" rows="3" placeholder="Your address">${currentUserData.address || ''}</textarea>
+                  <textarea id="profile-address" rows="3" placeholder="Street address">${currentUserData.address || ''}</textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save"></i> Save Changes
-                </button>
+                <div class="form-group">
+                  <label><i class="fas fa-info-circle"></i> Bio</label>
+                  <textarea id="profile-bio" rows="3" placeholder="Tell the community a bit about yourself..." maxlength="280">${currentUserData.bio || ''}</textarea>
+                  <small style="color:var(--text-muted);"><span id="bio-count">${(currentUserData.bio || '').length}</span>/280 characters</small>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label><i class="fas fa-bullseye"></i> Monthly Meal Goal</label>
+                    <input type="number" id="profile-goal" value="${monthlyGoal}" min="1" max="1000">
+                  </div>
+                  <div class="form-group">
+                    <label><i class="fas fa-language"></i> Preferred Language</label>
+                    <select id="profile-language">
+                      ${['English','Spanish','French','Arabic','Hindi','Mandarin'].map(l => `<option ${currentUserData.language===l?'selected':''}>${l}</option>`).join('')}
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                <button type="button" id="export-data-btn" class="btn btn-outline" style="margin-left:0.5rem;"><i class="fas fa-download"></i> Export JSON</button>
               </form>
             </div>
 
-            <!-- Change Password Section -->
-            <div id="settings-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-cog"></i> Settings
-              </div>
-              <h3>Change Password</h3>
-              <form id="password-form" style="margin-top: 1rem;">
-                <div class="form-group">
-                  <label><i class="fas fa-lock"></i> Current Password</label>
-                  <input type="password" id="current-password" required>
-                </div>
-                <div class="form-group">
-                  <label><i class="fas fa-key"></i> New Password</label>
-                  <input type="password" id="new-password" required>
-                </div>
-                <div class="form-group">
-                  <label><i class="fas fa-check-circle"></i> Confirm Password</label>
-                  <input type="password" id="confirm-password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Update Password</button>
-              </form>
-              
-              <div class="menu-divider" style="margin: 2rem 0;"></div>
-              
-              <h3 style="color: var(--error);">Danger Zone</h3>
-              <button id="delete-account-btn" class="btn btn-danger" style="margin-top: 1rem;">
-                <i class="fas fa-trash-alt"></i> Delete Account
-              </button>
-            </div>
-
-            <!-- Help & Support -->
-            <div id="support-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-headset"></i> Help & Support
-              </div>
-              <div class="stat-card" style="text-align: left;">
-                <h3><i class="fas fa-envelope"></i> Contact Us</h3>
-                <p>Email: support@foodshare.com</p>
-                <p>Phone: (555) 123-FOOD</p>
-                <p>Hours: Mon-Fri, 9 AM - 6 PM</p>
-              </div>
-              <div class="stat-card" style="margin-top: 1rem; text-align: left;">
-                <h3><i class="fas fa-question-circle"></i> FAQ</h3>
-                <p><strong>How do I donate food?</strong> - Click "Add New Donation" and fill out the form</p>
-                <p><strong>How do I request food?</strong> - Browse nearby listings and click "Request"</p>
-                <p><strong>Is this free?</strong> - Yes, FoodShare is completely free!</p>
-              </div>
-            </div>
-
-            <!-- Achievements/Badges -->
-            <div id="badges-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-medal"></i> Achievements
-              </div>
-              <div class="badges-grid">
-                <div class="badge-card">
-                  <i class="fas fa-seedling"></i>
-                  <h4>First Donation</h4>
-                  <p>${totalMeals > 0 ? '✅ Unlocked' : '🔒 Make first donation'}</p>
-                </div>
-                <div class="badge-card">
-                  <i class="fas fa-heart"></i>
-                  <h4>Community Helper</h4>
-                  <p>${totalMeals >= 10 ? '✅ Unlocked' : '🔒 Help 10 people'}</p>
-                </div>
-                <div class="badge-card">
-                  <i class="fas fa-trophy"></i>
-                  <h4>Star Donor</h4>
-                  <p>${totalMeals >= 50 ? '✅ Unlocked' : '🔒 Donate 50 meals'}</p>
-                </div>
-              </div>
-            </div>
-
-            ${currentUserData.userType === 'donor' ? `
-            <!-- My Donations Section -->
+            ${isDonor ? `
+            <!-- DONATIONS -->
             <div id="donations-section" class="content-section">
               <div class="section-title">
                 <i class="fas fa-box-open"></i> My Donations
+                <div class="title-actions">
+                  <button class="btn btn-outline btn-sm" id="exportCsvBtn"><i class="fas fa-file-csv"></i> Export CSV</button>
+                </div>
               </div>
-              <div id="donations-list" class="donations-list">
-                ${donations.length === 0 ? '<div class="empty-state">No donations yet. Click "Add New Donation" to get started!</div>' : ''}
+              <div class="donations-toolbar">
+                <input type="text" id="donation-search" placeholder="🔍 Search donations...">
+                <select id="donation-filter">
+                  <option value="all">All statuses</option>
+                  <option value="available">Available</option>
+                  <option value="claimed">Claimed</option>
+                  <option value="completed">Completed</option>
+                  <option value="expired">Expired</option>
+                </select>
+                <select id="donation-sort">
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="meals-desc">Most meals</option>
+                  <option value="meals-asc">Fewest meals</option>
+                </select>
               </div>
+              <div class="bulk-actions" id="bulkActions" style="display:none;">
+                <strong id="bulkCount">0 selected</strong>
+                <button class="btn btn-sm btn-secondary" id="bulkComplete"><i class="fas fa-check"></i> Mark complete</button>
+                <button class="btn btn-sm btn-danger" id="bulkDelete"><i class="fas fa-trash"></i> Delete</button>
+                <button class="btn btn-sm btn-outline" id="bulkClear">Clear</button>
+              </div>
+              <div id="donations-list" class="donations-list"></div>
             </div>
 
-            <!-- Add Donation Section -->
+            <!-- ADD DONATION -->
             <div id="add-donation-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-plus-circle"></i> Add New Donation
-              </div>
-              <p>Click the button below to create a new food donation listing.</p>
-              <button id="go-to-delivery" class="btn btn-primary" style="margin-top: 1rem;">
-                <i class="fas fa-utensils"></i> Create Donation
-              </button>
+              <div class="section-title"><i class="fas fa-plus-circle"></i> Add New Donation</div>
+              <p style="color:var(--text-muted);margin-bottom:1.5rem;">Create a new food donation listing to share with people in need.</p>
+              <a href="delivery.html" class="btn btn-primary"><i class="fas fa-utensils"></i> Create Donation</a>
             </div>
 
-            <!-- Impact Stats -->
+            <!-- IMPACT -->
             <div id="impact-section" class="content-section">
               <div class="section-title">
                 <i class="fas fa-chart-line"></i> Impact Statistics
+                <div class="title-actions">
+                  <button class="btn btn-outline btn-sm" id="shareImpactBtn"><i class="fas fa-share"></i> Share</button>
+                </div>
               </div>
               <div class="stats-grid">
                 <div class="stat-card">
@@ -837,156 +1220,907 @@
                 </div>
                 <div class="stat-card">
                   <i class="fas fa-weight-hanging"></i>
-                  <div class="stat-number">${Math.round(totalMeals * 0.5)}</div>
-                  <div class="stat-label">Waste Saved (kg)</div>
+                  <div class="stat-number">${(totalMeals * 0.5).toFixed(1)}</div>
+                  <div class="stat-label">Food Saved (kg)</div>
                 </div>
                 <div class="stat-card">
                   <i class="fas fa-cloud"></i>
-                  <div class="stat-number">${Math.round(totalMeals * 2)}</div>
-                  <div class="stat-label">CO2 Saved (kg)</div>
+                  <div class="stat-number">${(totalMeals * 2.5).toFixed(1)}</div>
+                  <div class="stat-label">CO₂ Saved (kg)</div>
                 </div>
+                <div class="stat-card">
+                  <i class="fas fa-tint"></i>
+                  <div class="stat-number">${(totalMeals * 1500).toLocaleString()}</div>
+                  <div class="stat-label">Liters of Water Saved</div>
+                </div>
+                <div class="stat-card">
+                  <i class="fas fa-dollar-sign"></i>
+                  <div class="stat-number">$${(totalMeals * 3).toLocaleString()}</div>
+                  <div class="stat-label">Est. Economic Value</div>
+                </div>
+                <div class="stat-card">
+                  <i class="fas fa-tree"></i>
+                  <div class="stat-number">${Math.max(1, Math.round(totalMeals / 5))}</div>
+                  <div class="stat-label">Trees Equivalent</div>
+                </div>
+              </div>
+              <div class="impact-metric" style="margin-top:1.5rem;">
+                <h3><i class="fas fa-leaf"></i> Environmental Equivalent</h3>
+                <p>Your donations are equivalent to planting <strong>${Math.max(1, Math.round(totalMeals / 5))}</strong> trees 🌳 and removing <strong>${(totalMeals * 0.01).toFixed(2)}</strong> cars from the road for a day 🚗.</p>
+              </div>
+            </div>
+
+            <!-- CERTIFICATE -->
+            <div id="certificate-section" class="content-section">
+              <div class="section-title">
+                <i class="fas fa-certificate"></i> Impact Certificate
+                <div class="title-actions">
+                  <button class="btn btn-outline btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Print / Save PDF</button>
+                </div>
+              </div>
+              <div class="certificate" id="certificateBody">
+                <h2><i class="fas fa-utensils"></i> FoodShare Certificate of Impact</h2>
+                <p style="color:var(--text-muted);">This certifies that</p>
+                <div class="cert-name">${displayName}</div>
+                <p>has contributed meaningfully to the FoodShare community.</p>
+                <div class="cert-stats">
+                  <div><strong>${totalMeals}</strong>Meals donated</div>
+                  <div><strong>${completedDonations}</strong>Donations completed</div>
+                  <div><strong>${(totalMeals * 0.5).toFixed(0)}kg</strong>Food saved</div>
+                  <div><strong>${(totalMeals * 2.5).toFixed(0)}kg</strong>CO₂ saved</div>
+                </div>
+                <p style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-muted);">Issued ${new Date().toLocaleDateString('en-US', { dateStyle: 'long' })} · FoodShare</p>
               </div>
             </div>
             ` : `
-            <!-- Recipient Sections -->
+            <!-- RECIPIENT SECTIONS -->
             <div id="requests-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-clipboard-list"></i> My Requests
-              </div>
-              <div class="empty-state">Your requested donations will appear here</div>
+              <div class="section-title"><i class="fas fa-clipboard-list"></i> My Requests</div>
+              <div class="empty-state"><i class="fas fa-inbox"></i><p>Your requested donations will appear here.</p></div>
             </div>
             <div id="nearby-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-map-marker-alt"></i> Nearby Food
+              <div class="section-title"><i class="fas fa-map-marker-alt"></i> Nearby Food</div>
+              <div class="empty-state"><i class="fas fa-search-location"></i><p>Browse available donations near you.</p>
+                <a href="receiver.html" class="btn btn-primary" style="margin-top:1rem;"><i class="fas fa-search"></i> Find Food</a>
               </div>
-              <div class="empty-state">Browse available donations near you</div>
             </div>
             <div id="saved-section" class="content-section">
-              <div class="section-title">
-                <i class="fas fa-heart"></i> Saved Donations
-              </div>
-              <div class="empty-state">Your saved/wishlist items will appear here</div>
+              <div class="section-title"><i class="fas fa-heart"></i> Saved Donations</div>
+              <div id="saved-list"></div>
             </div>
             `}
-          </div>
+
+            <!-- ACHIEVEMENTS -->
+            <div id="badges-section" class="content-section">
+              <div class="section-title"><i class="fas fa-medal"></i> Achievements</div>
+              <p style="color:var(--text-muted);margin-bottom:1.5rem;">Unlock badges as you make an impact. Click any badge for details.</p>
+              <div class="badges-grid">
+                ${buildBadge('seedling', 'First Donation', 'Make your first donation', totalMeals, 1)}
+                ${buildBadge('heart', 'Community Helper', 'Help 10+ people', totalMeals, 10)}
+                ${buildBadge('trophy', 'Star Donor', 'Donate 50+ meals', totalMeals, 50)}
+                ${buildBadge('crown', 'Hunger Hero', 'Donate 100+ meals', totalMeals, 100)}
+                ${buildBadge('fire', 'On Fire', '5+ active donations', activeDonations, 5)}
+                ${buildBadge('award', 'Legend', '500+ meals donated', totalMeals, 500)}
+                ${buildBadge('bolt', 'Streak Keeper', '3-day donation streak', streak, 3)}
+                ${buildBadge('globe', 'Eco Warrior', 'Save 250kg CO₂', totalMeals * 2.5, 250)}
+                ${buildBadge('user-check', 'Verified', 'Verify your email', currentUser.emailVerified ? 1 : 0, 1)}
+              </div>
+            </div>
+
+            <!-- SHARE -->
+            <div id="share-section" class="content-section">
+              <div class="section-title"><i class="fas fa-share-alt"></i> Share Your Profile</div>
+              <p style="color:var(--text-muted);margin-bottom:1.5rem;">Invite friends to join FoodShare or share your impact.</p>
+              <div style="display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center;flex-wrap:wrap;">
+                <div style="background:white;padding:1rem;border-radius:12px;width:200px;height:200px;display:flex;align-items:center;justify-content:center;">
+                  <canvas id="qrCanvas"></canvas>
+                </div>
+                <div>
+                  <p style="margin-bottom:0.8rem;font-weight:600;">Your share link:</p>
+                  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                    <input id="shareLink" readonly style="flex:1;min-width:200px;font-size:0.85rem;" value="${window.location.origin}/profile.html?ref=${currentUser.uid.substring(0,8)}">
+                    <button class="btn btn-primary btn-sm" id="copyLinkBtn"><i class="fas fa-copy"></i> Copy</button>
+                  </div>
+                  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;">
+                    <a class="btn btn-outline btn-sm" id="shareTwitter"><i class="fab fa-twitter"></i> Twitter</a>
+                    <a class="btn btn-outline btn-sm" id="shareFacebook"><i class="fab fa-facebook"></i> Facebook</a>
+                    <a class="btn btn-outline btn-sm" id="shareWhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a class="btn btn-outline btn-sm" id="shareEmail"><i class="fas fa-envelope"></i> Email</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NOTIFICATIONS -->
+            <div id="notifications-section" class="content-section">
+              <div class="section-title"><i class="fas fa-bell"></i> Notification Preferences</div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Email Notifications</strong><span>Receive updates by email</span></div>
+                <label class="switch"><input type="checkbox" data-pref="email" ${prefs.email ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>SMS Notifications</strong><span>Text messages for urgent updates</span></div>
+                <label class="switch"><input type="checkbox" data-pref="sms" ${prefs.sms ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Push Notifications</strong><span>Browser push alerts</span></div>
+                <label class="switch"><input type="checkbox" data-pref="push" ${prefs.push ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>New Request Alerts</strong><span>When someone claims your donation</span></div>
+                <label class="switch"><input type="checkbox" data-pref="requests" ${prefs.requests ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Weekly Digest</strong><span>Summary of your weekly impact</span></div>
+                <label class="switch"><input type="checkbox" data-pref="digest" ${prefs.digest ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Marketing & Tips</strong><span>Community stories & helpful tips</span></div>
+                <label class="switch"><input type="checkbox" data-pref="marketing" ${prefs.marketing ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+            </div>
+
+            <!-- PRIVACY -->
+            <div id="privacy-section" class="content-section">
+              <div class="section-title"><i class="fas fa-user-shield"></i> Privacy Settings</div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Public Profile</strong><span>Allow others to view your basic profile</span></div>
+                <label class="switch"><input type="checkbox" data-privacy="profilePublic" ${privacy.profilePublic ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Show in Leaderboard</strong><span>Display your name on community rankings</span></div>
+                <label class="switch"><input type="checkbox" data-privacy="showInLeaderboard" ${privacy.showInLeaderboard ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Share Impact Stats</strong><span>Show your donation totals publicly</span></div>
+                <label class="switch"><input type="checkbox" data-privacy="shareImpact" ${privacy.shareImpact ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Share Location</strong><span>Share approximate city for matching</span></div>
+                <label class="switch"><input type="checkbox" data-privacy="shareLocation" ${privacy.shareLocation ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div id="settings-section" class="content-section">
+              <div class="section-title"><i class="fas fa-cog"></i> Settings</div>
+
+              ${!currentUser.emailVerified ? `
+                <div class="alert info" style="display:flex;">
+                  <i class="fas fa-info-circle"></i>
+                  Your email is not verified.
+                  <button id="verify-email-btn" class="btn btn-sm btn-primary" style="margin-left:auto;">Send Verification</button>
+                </div>
+              ` : ''}
+
+              <h3 style="margin-bottom:1rem;">Appearance</h3>
+              <div class="toggle-row">
+                <div class="toggle-info"><strong>Dark Mode</strong><span>Use a dark theme across FoodShare</span></div>
+                <label class="switch"><input type="checkbox" id="darkModeToggle" ${savedTheme === 'dark' ? 'checked' : ''}><span class="slider"></span></label>
+              </div>
+
+              <h3 style="margin: 2rem 0 1rem;">Two-Factor Authentication</h3>
+              <p style="color:var(--text-muted);margin-bottom:1rem;">Add an extra layer of security to your account.</p>
+              <button class="btn btn-outline" id="setup-2fa-btn"><i class="fas fa-mobile-alt"></i> Setup 2FA</button>
+
+              <h3 style="margin: 2rem 0 1rem;">Change Password</h3>
+              <form id="password-form">
+                <div class="form-group">
+                  <label><i class="fas fa-lock"></i> Current Password</label>
+                  <input type="password" id="current-password" required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label><i class="fas fa-key"></i> New Password</label>
+                    <input type="password" id="new-password" required minlength="6">
+                    <small style="color:var(--text-muted);">Strength: <span id="pw-strength">—</span></small>
+                  </div>
+                  <div class="form-group">
+                    <label><i class="fas fa-check-circle"></i> Confirm Password</label>
+                    <input type="password" id="confirm-password" required minlength="6">
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-shield-alt"></i> Update Password</button>
+              </form>
+
+              <h3 style="margin: 2rem 0 1rem;">Active Sessions</h3>
+              <div style="background:var(--surface-2);padding:1rem;border-radius:12px;border:1px solid var(--border);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                  <div>
+                    <strong><i class="fas fa-${navigator.userAgent.includes('Mobile') ? 'mobile-alt' : 'desktop'}"></i> Current Device</strong>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">${navigator.platform || 'Unknown'} · Last active: now</div>
+                  </div>
+                  <span class="status-badge status-available">Active</span>
+                </div>
+              </div>
+
+              <div class="menu-divider" style="margin: 2rem 0;"></div>
+
+              <h3 style="color: var(--error);"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+              <p style="color:var(--text-muted);margin:0.5rem 0 1rem;">Permanently delete your account and all associated data. This action cannot be undone.</p>
+              <button id="delete-account-btn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Delete Account</button>
+            </div>
+
+            <!-- SUPPORT -->
+            <div id="support-section" class="content-section">
+              <div class="section-title"><i class="fas fa-headset"></i> Help & Support</div>
+              <div class="stat-card" style="text-align: left;">
+                <h3><i class="fas fa-envelope" style="color:var(--primary);"></i> Contact Us</h3>
+                <p style="margin-top:0.5rem;"><strong>Email:</strong> support@foodshare.org</p>
+                <p><strong>Phone:</strong> (555) 123-FOOD</p>
+                <p><strong>Hours:</strong> Mon-Fri, 9 AM - 6 PM</p>
+              </div>
+              <div class="stat-card" style="margin-top: 1rem; text-align: left;">
+                <h3><i class="fas fa-question-circle" style="color:var(--primary);"></i> FAQ</h3>
+                <p style="margin-top:0.5rem;"><strong>How do I donate food?</strong> — Click "Add New Donation" and fill out the form.</p>
+                <p><strong>How do I request food?</strong> — Browse nearby listings and click "Request".</p>
+                <p><strong>Is this free?</strong> — Yes, FoodShare is completely free for everyone.</p>
+                <p><strong>How is my data protected?</strong> — All data is encrypted and never sold.</p>
+              </div>
+              <div class="stat-card" style="margin-top: 1rem; text-align: left;">
+                <h3><i class="fas fa-comment-dots" style="color:var(--primary);"></i> Send Feedback</h3>
+                <form id="feedback-form" style="margin-top:0.5rem;">
+                  <textarea id="feedback-text" rows="3" placeholder="What's on your mind?" required></textarea>
+                  <button type="submit" class="btn btn-primary btn-sm" style="margin-top:0.5rem;"><i class="fas fa-paper-plane"></i> Send</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- SHORTCUTS -->
+            <div id="shortcuts-section" class="content-section">
+              <div class="section-title"><i class="fas fa-keyboard"></i> Keyboard Shortcuts</div>
+              <div style="display:grid;gap:0.7rem;">
+                <div><kbd>G</kbd> then <kbd>D</kbd> — Go to Dashboard</div>
+                <div><kbd>G</kbd> then <kbd>P</kbd> — Go to Edit Profile</div>
+                <div><kbd>G</kbd> then <kbd>M</kbd> — Go to My Donations</div>
+                <div><kbd>G</kbd> then <kbd>B</kbd> — Go to Achievements</div>
+                <div><kbd>G</kbd> then <kbd>S</kbd> — Go to Settings</div>
+                <div><kbd>T</kbd> — Toggle dark mode</div>
+                <div><kbd>/</kbd> — Focus donations search</div>
+                <div><kbd>?</kbd> — Show this list</div>
+                <div><kbd>Esc</kbd> — Close modals / panels</div>
+              </div>
+            </div>
+
+          </section>
         </div>
       `;
 
-      container.innerHTML = profileHTML;
+      attachHandlers();
+      renderDonations();
+      renderSavedItems();
+      renderCharts();
+      renderQRCode();
+    }
 
-      // Populate donations if donor
-      if (currentUserData.userType === 'donor' && donations.length > 0) {
-        const donationsContainer = document.getElementById('donations-list');
-        if (donationsContainer) {
-          donations.forEach(donation => {
-            const statusClass = donation.status === 'available' ? 'status-available' : 
-                               donation.status === 'claimed' ? 'status-claimed' : 'status-completed';
-            const statusText = donation.status === 'available' ? 'Available' : 
-                              donation.status === 'claimed' ? 'Claimed' : 'Completed';
-            
-            const card = document.createElement('div');
-            card.className = 'donation-card';
-            card.innerHTML = `
-              <div class="donation-info">
-                <h4>${donation.description?.substring(0, 50) || 'Food Donation'}...</h4>
-                <p><i class="fas fa-clock"></i> ${donation.timeDisplay || 'Flexible'}</p>
-                <p><i class="fas fa-map-marker-alt"></i> ${donation.pickupLocation || 'Location provided'}</p>
-              </div>
-              <span class="status-badge ${statusClass}">${statusText}</span>
-            `;
-            donationsContainer.appendChild(card);
+    /* ---------- Renderers ---------- */
+    function buildBadge(icon, title, desc, current, target) {
+      const unlocked = current >= target;
+      const pct = Math.min(100, Math.round((current / target) * 100));
+      return `
+        <div class="badge-card ${unlocked ? '' : 'locked'}" data-badge="${title}">
+          <i class="fas fa-${icon}"></i>
+          <h4>${title}</h4>
+          <p>${unlocked ? '✅ Unlocked' : '🔒 ' + desc}</p>
+          ${!unlocked ? `<div class="badge-progress"><span style="width:${pct}%"></span></div><p style="margin-top:4px;">${current}/${target}</p>` : ''}
+        </div>`;
+    }
+
+    function buildTimelineHTML() {
+      const items = [];
+      if (allDonations.length) {
+        allDonations.slice(0, 5).forEach(d => {
+          items.push({
+            date: timeAgo(d.createdAt),
+            title: `Donation: ${(d.description || 'Food donation').substring(0, 60)}`,
+            desc: `Status: ${d.status || 'available'} • Serves ${d.quantityPeople || '?'} people`
           });
-        }
+        });
       }
+      items.push({
+        date: 'Account created',
+        title: 'Welcome to FoodShare!',
+        desc: 'Start donating or requesting food to make an impact.'
+      });
+      return items.map(i => `
+        <div class="timeline-item">
+          <div class="timeline-date">${i.date}</div>
+          <div class="timeline-title">${i.title}</div>
+          <div class="timeline-desc">${i.desc}</div>
+        </div>`).join('');
+    }
 
-      // Menu navigation
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', () => {
-          const section = item.dataset.section;
-          document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-          item.classList.add('active');
-          document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-          document.getElementById(`${section}-section`).classList.add('active');
+    function applyDonationSort(items, sort) {
+      const arr = [...items];
+      const getTime = (d) => d.createdAt?.toMillis ? d.createdAt.toMillis() : 0;
+      switch (sort) {
+        case 'oldest': arr.sort((a,b) => getTime(a) - getTime(b)); break;
+        case 'meals-desc': arr.sort((a,b) => (b.quantityPeople||0) - (a.quantityPeople||0)); break;
+        case 'meals-asc': arr.sort((a,b) => (a.quantityPeople||0) - (b.quantityPeople||0)); break;
+        default: arr.sort((a,b) => getTime(b) - getTime(a));
+      }
+      return arr;
+    }
+
+    function renderDonations(filter = 'all', search = '', sort = 'newest') {
+      const list = document.getElementById('donations-list');
+      if (!list) return;
+      let items = allDonations;
+      if (filter !== 'all') items = items.filter(d => (d.status || 'available') === filter);
+      if (search) {
+        const s = search.toLowerCase();
+        items = items.filter(d =>
+          (d.description || '').toLowerCase().includes(s) ||
+          (d.pickupLocation || '').toLowerCase().includes(s)
+        );
+      }
+      items = applyDonationSort(items, sort);
+      if (!items.length) {
+        list.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><p>No donations match your filters.</p>
+          <a href="delivery.html" class="btn btn-primary" style="margin-top:1rem;"><i class="fas fa-plus"></i> Create First Donation</a></div>`;
+        updateBulkUI();
+        return;
+      }
+      list.innerHTML = items.map(d => {
+        const status = d.status || 'available';
+        const statusClass = `status-${status}`;
+        const checked = selectedDonations.has(d.id) ? 'checked' : '';
+        return `
+          <div class="donation-card ${checked ? 'selected' : ''}" data-id="${d.id}">
+            <input type="checkbox" class="donation-check" data-check="${d.id}" ${checked}>
+            <div class="donation-info">
+              <h4>${(d.description || 'Food Donation').substring(0, 70)}</h4>
+              <p><i class="fas fa-utensils"></i> Serves ${d.quantityPeople || '?'} people</p>
+              <p><i class="fas fa-clock"></i> ${d.timeDisplay || fmtDate(d.createdAt)}</p>
+              <p><i class="fas fa-map-marker-alt"></i> ${d.pickupLocation || 'Location provided'}</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;">
+              <span class="status-badge ${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+              <div class="donation-actions">
+                ${status === 'available' ? `<button class="btn btn-sm btn-secondary" data-action="complete" data-id="${d.id}"><i class="fas fa-check"></i> Done</button>` : ''}
+                <button class="btn btn-sm btn-outline" data-action="duplicate" data-id="${d.id}" title="Repost similar"><i class="fas fa-copy"></i></button>
+                <button class="btn btn-sm btn-danger" data-action="delete" data-id="${d.id}"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      // checkboxes
+      list.querySelectorAll('[data-check]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) selectedDonations.add(cb.dataset.check);
+          else selectedDonations.delete(cb.dataset.check);
+          cb.closest('.donation-card')?.classList.toggle('selected', cb.checked);
+          updateBulkUI();
         });
       });
 
-      // Edit profile form
-      document.getElementById('edit-profile-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('profile-name').value.trim();
-        const phone = document.getElementById('profile-phone').value.trim();
-        const address = document.getElementById('profile-address').value.trim();
-
-        try {
-          await updateDoc(doc(db, 'users', currentUser.uid), {
-            name, phone, address, updatedAt: new Date()
-          });
-          showAlert('Profile updated successfully!', 'success');
-          setTimeout(() => location.reload(), 1500);
-        } catch (error) {
-          showAlert('Error: ' + error.message, 'error');
-        }
+      list.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          try {
+            if (action === 'delete') {
+              if (!confirm('Delete this donation?')) return;
+              await deleteDoc(doc(db, 'donations', id));
+              allDonations = allDonations.filter(d => d.id !== id);
+              selectedDonations.delete(id);
+              toast('Donation deleted', 'success');
+              refreshDonationsView();
+            } else if (action === 'complete') {
+              await updateDoc(doc(db, 'donations', id), { status: 'completed', updatedAt: serverTimestamp() });
+              const d = allDonations.find(x => x.id === id); if (d) d.status = 'completed';
+              toast('Marked as completed', 'success');
+              refreshDonationsView();
+            } else if (action === 'duplicate') {
+              const d = allDonations.find(x => x.id === id);
+              if (!d) return;
+              openModal(`
+                <h3><i class="fas fa-copy"></i> Repost similar donation</h3>
+                <p style="color:var(--text-muted);margin-bottom:1rem;">This will take you to the donation page with details pre-filled.</p>
+                <div style="background:var(--surface-2);padding:1rem;border-radius:8px;">
+                  <strong>${(d.description || 'Food').substring(0,60)}</strong><br>
+                  <small>${d.quantityPeople || '?'} people · ${d.pickupLocation || ''}</small>
+                </div>
+                <div class="modal-actions">
+                  <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                  <a class="btn btn-primary" href="delivery.html">Continue</a>
+                </div>`);
+            }
+          } catch (err) { toast(err.message, 'error'); }
+        });
       });
+      updateBulkUI();
+    }
 
-      // Password form
-      document.getElementById('password-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const currentPassword = document.getElementById('current-password').value;
-        const newPassword = document.getElementById('new-password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
+    function updateBulkUI() {
+      const bar = document.getElementById('bulkActions');
+      if (!bar) return;
+      const n = selectedDonations.size;
+      bar.style.display = n > 0 ? 'flex' : 'none';
+      document.getElementById('bulkCount').textContent = `${n} selected`;
+    }
 
-        if (newPassword.length < 6) {
-          showAlert('Password must be at least 6 characters', 'error');
-          return;
+    function refreshDonationsView() {
+      renderDonations(
+        document.getElementById('donation-filter')?.value || 'all',
+        document.getElementById('donation-search')?.value || '',
+        document.getElementById('donation-sort')?.value || 'newest'
+      );
+    }
+
+    /* ---------- Charts ---------- */
+    function renderCharts() {
+      if (typeof Chart === 'undefined') { setTimeout(renderCharts, 300); return; }
+      const monthsCanvas = document.getElementById('monthlyChart');
+      const statusCanvas = document.getElementById('statusChart');
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const textColor = isDark ? '#f5f5f5' : '#333';
+      const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+
+      if (monthsCanvas) {
+        // Build 6 month buckets
+        const buckets = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(); d.setMonth(d.getMonth() - i);
+          buckets.push({ label: d.toLocaleString('default', { month: 'short' }), key: `${d.getFullYear()}-${d.getMonth()}`, count: 0, meals: 0 });
         }
-        if (newPassword !== confirmPassword) {
-          showAlert('Passwords do not match', 'error');
-          return;
-        }
+        allDonations.forEach(d => {
+          const date = d.createdAt?.toDate ? d.createdAt.toDate() : (d.createdAt ? new Date(d.createdAt) : null);
+          if (!date) return;
+          const key = `${date.getFullYear()}-${date.getMonth()}`;
+          const b = buckets.find(x => x.key === key);
+          if (b) { b.count++; b.meals += Number(d.quantityPeople) || 0; }
+        });
+        if (monthlyChart) monthlyChart.destroy();
+        monthlyChart = new Chart(monthsCanvas, {
+          type: 'bar',
+          data: {
+            labels: buckets.map(b => b.label),
+            datasets: [
+              { label: 'Donations', data: buckets.map(b => b.count), backgroundColor: '#4caf50', borderRadius: 6 },
+              { label: 'Meals', data: buckets.map(b => b.meals), backgroundColor: '#ff9800', borderRadius: 6 },
+            ],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: textColor } } },
+            scales: {
+              x: { ticks: { color: textColor }, grid: { color: gridColor } },
+              y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: true },
+            },
+          },
+        });
+      }
 
-        try {
-          const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
-          await reauthenticateWithCredential(currentUser, credential);
-          await updatePassword(currentUser, newPassword);
-          showAlert('Password updated!', 'success');
-          document.getElementById('password-form').reset();
-        } catch (error) {
-          showAlert(error.code === 'auth/wrong-password' ? 'Current password is incorrect' : 'Error: ' + error.message, 'error');
-        }
-      });
+      if (statusCanvas) {
+        const counts = { available: 0, claimed: 0, completed: 0, expired: 0 };
+        allDonations.forEach(d => { counts[d.status || 'available'] = (counts[d.status || 'available'] || 0) + 1; });
+        if (statusChart) statusChart.destroy();
+        statusChart = new Chart(statusCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: ['Available', 'Claimed', 'Completed', 'Expired'],
+            datasets: [{
+              data: [counts.available, counts.claimed, counts.completed, counts.expired],
+              backgroundColor: ['#4caf50', '#ff9800', '#2196f3', '#f44336'],
+            }],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: textColor } } },
+          },
+        });
+      }
+    }
 
-      // Go to delivery page
-      document.getElementById('go-to-delivery')?.addEventListener('click', () => {
-        window.location.href = 'delivery.html';
-      });
+    /* ---------- QR ---------- */
+    function renderQRCode() {
+      if (typeof QRCode === 'undefined') { setTimeout(renderQRCode, 300); return; }
+      const canvas = document.getElementById('qrCanvas');
+      if (!canvas) return;
+      QRCode.toCanvas(canvas, document.getElementById('shareLink').value, { width: 180, margin: 1, color: { dark: '#388e3c', light: '#ffffff' } });
+    }
 
-      // Delete account
-      document.getElementById('delete-account-btn')?.addEventListener('click', async () => {
-        if (confirm('⚠️ WARNING: This will permanently delete your account and all data. Are you sure?')) {
-          if (confirm('This action cannot be undone. Type "DELETE" to confirm:')) {
-            // Delete account logic here
-            showAlert('Account deletion request submitted. Contact support.', 'error');
-          }
-        }
+    /* ---------- Saved / wishlist ---------- */
+    function getSaved() { try { return JSON.parse(localStorage.getItem('fs-saved') || '[]'); } catch { return []; } }
+    function renderSavedItems() {
+      const el = document.getElementById('saved-list');
+      if (!el) return;
+      const saved = getSaved();
+      if (!saved.length) {
+        el.innerHTML = `<div class="empty-state"><i class="far fa-heart"></i><p>Your saved/wishlist items will appear here.</p>
+          <a href="receiver.html" class="btn btn-primary" style="margin-top:1rem;"><i class="fas fa-search"></i> Browse food</a></div>`;
+        return;
+      }
+      el.innerHTML = saved.map((s, i) => `
+        <div class="donation-card">
+          <div class="donation-info">
+            <h4>${s.title || 'Saved item'}</h4>
+            <p><i class="fas fa-map-marker-alt"></i> ${s.location || ''}</p>
+          </div>
+          <button class="btn btn-sm btn-danger" data-remove="${i}"><i class="fas fa-trash"></i> Remove</button>
+        </div>`).join('');
+      el.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => {
+        const arr = getSaved(); arr.splice(Number(b.dataset.remove), 1);
+        localStorage.setItem('fs-saved', JSON.stringify(arr));
+        renderSavedItems(); toast('Removed from wishlist', 'info');
+      }));
+    }
+
+    /* ---------- Share helpers ---------- */
+    function setupShareButtons() {
+      const link = document.getElementById('shareLink')?.value || '';
+      const text = encodeURIComponent(`I'm fighting food waste on FoodShare! Join me:`);
+      const url = encodeURIComponent(link);
+      const a = (id, href) => { const el = document.getElementById(id); if (el) el.href = href; };
+      a('shareTwitter', `https://twitter.com/intent/tweet?text=${text}&url=${url}`);
+      a('shareFacebook', `https://www.facebook.com/sharer/sharer.php?u=${url}`);
+      a('shareWhatsApp', `https://wa.me/?text=${text}%20${url}`);
+      a('shareEmail', `mailto:?subject=Join%20me%20on%20FoodShare&body=${text}%20${url}`);
+      document.getElementById('copyLinkBtn')?.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(link); toast('Link copied!', 'success'); }
+        catch { toast('Copy failed', 'error'); }
       });
     }
 
-    // Auth check
+    /* ---------- Handlers ---------- */
+    function attachHandlers() {
+      // Sidebar nav
+      document.querySelectorAll('.menu-item[data-section]').forEach(item => {
+        item.addEventListener('click', () => switchSection(item.dataset.section));
+      });
+      document.querySelectorAll('[data-jump]').forEach(el => {
+        el.addEventListener('click', () => switchSection(el.dataset.jump));
+      });
+      document.getElementById('sidebar-logout')?.addEventListener('click', handleLogout);
+      document.getElementById('refreshBtn')?.addEventListener('click', async () => {
+        toast('Refreshing...', 'info');
+        await loadProfile();
+      });
+
+      // Avatar upload
+      document.getElementById('avatar-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 500_000) { toast('Image too large. Max 500KB.', 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+          const dataUrl = evt.target.result;
+          try {
+            await updateDoc(doc(db, 'users', currentUser.uid), { avatar: dataUrl });
+            document.getElementById('avatarDisplay').innerHTML = `<img src="${dataUrl}" alt="avatar">`;
+            currentUserData.avatar = dataUrl;
+            toast('Profile photo updated', 'success');
+          } catch (err) { toast(err.message, 'error'); }
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Bio character count
+      document.getElementById('profile-bio')?.addEventListener('input', (e) => {
+        const c = document.getElementById('bio-count'); if (c) c.textContent = e.target.value.length;
+      });
+
+      // Edit profile
+      document.getElementById('edit-profile-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const updates = {
+            name: document.getElementById('profile-name').value.trim(),
+            phone: document.getElementById('profile-phone').value.trim(),
+            city: document.getElementById('profile-city').value.trim(),
+            address: document.getElementById('profile-address').value.trim(),
+            bio: document.getElementById('profile-bio').value.trim(),
+            language: document.getElementById('profile-language').value,
+            monthlyGoal: parseInt(document.getElementById('profile-goal').value) || 50,
+            updatedAt: serverTimestamp()
+          };
+          await updateDoc(doc(db, 'users', currentUser.uid), updates);
+          Object.assign(currentUserData, updates);
+          showAlert('Profile updated successfully!', 'success');
+          updateNavbarAuth();
+        } catch (err) { showAlert('Error: ' + err.message, 'error'); }
+      });
+
+      // Export data JSON
+      document.getElementById('export-data-btn')?.addEventListener('click', () => {
+        const data = {
+          profile: { email: currentUser.email, ...currentUserData },
+          donations: allDonations,
+          exportedAt: new Date().toISOString()
+        };
+        downloadBlob(JSON.stringify(data, null, 2), `foodshare-data-${Date.now()}.json`, 'application/json');
+        toast('Data exported', 'success');
+      });
+
+      // Export CSV
+      document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
+        if (!allDonations.length) return toast('No donations to export', 'info');
+        const headers = ['id','description','quantityPeople','status','pickupLocation','createdAt'];
+        const rows = [headers.join(',')];
+        allDonations.forEach(d => {
+          const row = headers.map(h => {
+            let v = d[h];
+            if (h === 'createdAt' && v?.toDate) v = v.toDate().toISOString();
+            return `"${String(v ?? '').replace(/"/g, '""')}"`;
+          });
+          rows.push(row.join(','));
+        });
+        downloadBlob(rows.join('\n'), `donations-${Date.now()}.csv`, 'text/csv');
+        toast('CSV exported', 'success');
+      });
+
+      // Bulk actions
+      document.getElementById('bulkComplete')?.addEventListener('click', async () => {
+        if (!selectedDonations.size) return;
+        try {
+          const batch = writeBatch(db);
+          selectedDonations.forEach(id => batch.update(doc(db, 'donations', id), { status: 'completed', updatedAt: serverTimestamp() }));
+          await batch.commit();
+          selectedDonations.forEach(id => { const d = allDonations.find(x => x.id === id); if (d) d.status = 'completed'; });
+          selectedDonations.clear();
+          toast('Marked as completed', 'success');
+          refreshDonationsView();
+        } catch (err) { toast(err.message, 'error'); }
+      });
+      document.getElementById('bulkDelete')?.addEventListener('click', async () => {
+        if (!selectedDonations.size) return;
+        if (!confirm(`Delete ${selectedDonations.size} donation(s)?`)) return;
+        try {
+          const batch = writeBatch(db);
+          selectedDonations.forEach(id => batch.delete(doc(db, 'donations', id)));
+          await batch.commit();
+          allDonations = allDonations.filter(d => !selectedDonations.has(d.id));
+          selectedDonations.clear();
+          toast('Deleted', 'success');
+          refreshDonationsView();
+        } catch (err) { toast(err.message, 'error'); }
+      });
+      document.getElementById('bulkClear')?.addEventListener('click', () => {
+        selectedDonations.clear();
+        refreshDonationsView();
+      });
+
+      // Notification preferences
+      document.querySelectorAll('[data-pref]').forEach(toggle => {
+        toggle.addEventListener('change', async () => {
+          const prefs = { ...(currentUserData.notifications || {}) };
+          prefs[toggle.dataset.pref] = toggle.checked;
+          try {
+            await updateDoc(doc(db, 'users', currentUser.uid), { notifications: prefs });
+            currentUserData.notifications = prefs;
+            toast('Preferences saved', 'success');
+            if (toggle.dataset.pref === 'push' && toggle.checked && 'Notification' in window) {
+              Notification.requestPermission();
+            }
+          } catch (err) { toast(err.message, 'error'); }
+        });
+      });
+
+      // Privacy
+      document.querySelectorAll('[data-privacy]').forEach(toggle => {
+        toggle.addEventListener('change', async () => {
+          const privacy = { ...(currentUserData.privacy || {}) };
+          privacy[toggle.dataset.privacy] = toggle.checked;
+          try {
+            await updateDoc(doc(db, 'users', currentUser.uid), { privacy });
+            currentUserData.privacy = privacy;
+            toast('Privacy updated', 'success');
+          } catch (err) { toast(err.message, 'error'); }
+        });
+      });
+
+      // Dark mode toggle in settings
+      document.getElementById('darkModeToggle')?.addEventListener('change', () => { toggleTheme(); updateNavbarAuth(); });
+
+      // Donations search/filter/sort
+      document.getElementById('donation-search')?.addEventListener('input', refreshDonationsView);
+      document.getElementById('donation-filter')?.addEventListener('change', refreshDonationsView);
+      document.getElementById('donation-sort')?.addEventListener('change', refreshDonationsView);
+
+      // Verify email
+      document.getElementById('verify-email-btn')?.addEventListener('click', async () => {
+        try {
+          await sendEmailVerification(currentUser);
+          toast('Verification email sent — check your inbox', 'success');
+        } catch (err) { toast(err.message, 'error'); }
+      });
+
+      // 2FA placeholder
+      document.getElementById('setup-2fa-btn')?.addEventListener('click', () => {
+        openModal(`
+          <h3><i class="fas fa-mobile-alt"></i> Two-Factor Authentication</h3>
+          <p style="color:var(--text-muted);margin-bottom:1rem;">
+            Scan this QR code with Google Authenticator, Authy, or any TOTP app, then enter the 6-digit code to enable 2FA.
+          </p>
+          <div style="background:white;padding:1rem;border-radius:12px;display:flex;justify-content:center;margin-bottom:1rem;">
+            <canvas id="twofaQR"></canvas>
+          </div>
+          <input type="text" placeholder="Enter 6-digit code" maxlength="6" id="twofaCode" style="text-align:center;letter-spacing:6px;font-size:1.3rem;">
+          <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" id="enable2faBtn"><i class="fas fa-check"></i> Enable</button>
+          </div>
+        `);
+        if (typeof QRCode !== 'undefined') {
+          QRCode.toCanvas(document.getElementById('twofaQR'), `otpauth://totp/FoodShare:${currentUser.email}?secret=DEMOSECRET&issuer=FoodShare`, { width: 180 });
+        }
+        document.getElementById('enable2faBtn').addEventListener('click', () => {
+          const code = document.getElementById('twofaCode').value;
+          if (code.length !== 6) return toast('Enter a valid 6-digit code', 'error');
+          toast('2FA setup demo — backend integration required', 'info');
+          closeModal();
+        });
+      });
+
+      // Password form + strength
+      document.getElementById('new-password')?.addEventListener('input', (e) => {
+        const v = e.target.value;
+        let s = 0; if (v.length >= 8) s++; if (/[A-Z]/.test(v)) s++; if (/\d/.test(v)) s++; if (/[^A-Za-z0-9]/.test(v)) s++;
+        const labels = ['—','Weak','Fair','Good','Strong'];
+        const colors = ['var(--text-muted)','#f44336','#ff9800','#2196f3','#4caf50'];
+        const el = document.getElementById('pw-strength');
+        if (el) { el.textContent = labels[s]; el.style.color = colors[s]; }
+      });
+
+      document.getElementById('password-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const cur = document.getElementById('current-password').value;
+        const np = document.getElementById('new-password').value;
+        const cp = document.getElementById('confirm-password').value;
+        if (np.length < 6) return showAlert('Password must be at least 6 characters', 'error');
+        if (np !== cp) return showAlert('Passwords do not match', 'error');
+        try {
+          const credential = EmailAuthProvider.credential(currentUser.email, cur);
+          await reauthenticateWithCredential(currentUser, credential);
+          await updatePassword(currentUser, np);
+          showAlert('Password updated successfully!', 'success');
+          e.target.reset();
+          document.getElementById('pw-strength').textContent = '—';
+        } catch (err) {
+          showAlert(err.code === 'auth/wrong-password' ? 'Current password is incorrect' : err.message, 'error');
+        }
+      });
+
+      // Delete account — real
+      document.getElementById('delete-account-btn')?.addEventListener('click', () => {
+        openModal(`
+          <h3 style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i> Delete account</h3>
+          <p style="margin-bottom:1rem;">This will permanently delete your account, profile, and all donation data. <strong>This cannot be undone.</strong></p>
+          <label>Type <strong>DELETE</strong> to confirm:</label>
+          <input type="text" id="deleteConfirmInput" placeholder="DELETE">
+          <label style="margin-top:1rem;">Confirm with your password:</label>
+          <input type="password" id="deletePasswordInput" placeholder="Password">
+          <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-danger" id="confirmDeleteBtn"><i class="fas fa-trash-alt"></i> Permanently delete</button>
+          </div>
+        `);
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+          if (document.getElementById('deleteConfirmInput').value !== 'DELETE') return toast('Type DELETE to confirm', 'error');
+          const pw = document.getElementById('deletePasswordInput').value;
+          if (!pw) return toast('Password required', 'error');
+          try {
+            const credential = EmailAuthProvider.credential(currentUser.email, pw);
+            await reauthenticateWithCredential(currentUser, credential);
+            // Delete donations
+            const batch = writeBatch(db);
+            allDonations.forEach(d => batch.delete(doc(db, 'donations', d.id)));
+            batch.delete(doc(db, 'users', currentUser.uid));
+            await batch.commit();
+            await deleteUser(currentUser);
+            localStorage.clear();
+            toast('Account deleted', 'success');
+            setTimeout(() => window.location.href = 'index.html', 1500);
+          } catch (err) {
+            toast(err.code === 'auth/wrong-password' ? 'Incorrect password' : err.message, 'error');
+          }
+        });
+      });
+
+      // Feedback
+      document.getElementById('feedback-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = document.getElementById('feedback-text').value.trim();
+        if (!text) return;
+        try {
+          await setDoc(doc(collection(db, 'feedback')), {
+            uid: currentUser.uid, email: currentUser.email,
+            message: text, createdAt: serverTimestamp(),
+          });
+          document.getElementById('feedback-text').value = '';
+          toast('Thanks for your feedback!', 'success');
+        } catch (err) { toast(err.message, 'error'); }
+      });
+
+      // Badge click → details modal
+      document.querySelectorAll('.badge-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const title = card.dataset.badge;
+          const unlocked = !card.classList.contains('locked');
+          openModal(`
+            <h3><i class="fas ${card.querySelector('i').className.split('fa-')[1]?.replace(/\s.*/,'')}"></i> ${title}</h3>
+            <p style="margin:1rem 0;color:var(--text-muted);">${card.querySelector('p').textContent}</p>
+            <p>${unlocked ? '🎉 Congratulations, you earned this badge!' : 'Keep going — you can do it!'}</p>
+            <div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">Close</button></div>
+          `);
+        });
+      });
+
+      // Share impact button
+      document.getElementById('shareImpactBtn')?.addEventListener('click', async () => {
+        const totalMeals = allDonations.reduce((s,d) => s + (Number(d.quantityPeople)||0), 0);
+        const txt = `I've donated ${totalMeals} meals on FoodShare, saving food and helping my community! 🌱`;
+        if (navigator.share) {
+          try { await navigator.share({ title: 'My FoodShare Impact', text: txt }); } catch {}
+        } else {
+          await navigator.clipboard.writeText(txt);
+          toast('Impact copied to clipboard', 'success');
+        }
+      });
+
+      setupShareButtons();
+    }
+
+    function switchSection(section) {
+      document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+      document.querySelector(`.menu-item[data-section="${section}"]`)?.classList.add('active');
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`${section}-section`)?.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function downloadBlob(content, name, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // expose for inline onclick
+    window.closeModal = closeModal;
+
+    /* ---------- Keyboard shortcuts ---------- */
+    let kbBuf = '';
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('input, textarea, select')) return;
+      if (e.key === 'Escape') {
+        closeModal();
+        document.getElementById('notifPanel')?.classList.remove('active');
+        document.getElementById('mobileNav')?.classList.remove('active');
+        return;
+      }
+      if (e.key === '/') { e.preventDefault(); document.getElementById('donation-search')?.focus(); return; }
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) { switchSection('shortcuts'); return; }
+      if (e.key.toLowerCase() === 't') { toggleTheme(); updateNavbarAuth(); return; }
+      kbBuf += e.key.toLowerCase();
+      if (kbBuf.length > 2) kbBuf = kbBuf.slice(-2);
+      const map = { gd:'dashboard', gp:'profile', gm:'donations', gb:'badges', gs:'settings', gn:'notifications' };
+      if (map[kbBuf]) { switchSection(map[kbBuf]); kbBuf = ''; }
+      clearTimeout(window.__kbTimer);
+      window.__kbTimer = setTimeout(() => kbBuf = '', 800);
+    });
+
+    /* ---------- Auth state ---------- */
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        currentUserData = userDoc.exists() ? userDoc.data() : { userType: 'donor' };
+        try {
+          const snap = await getDoc(doc(db, 'users', user.uid));
+          currentUserData = snap.exists() ? snap.data() : { userType: 'donor', name: user.email.split('@')[0] };
+        } catch {
+          currentUserData = { userType: 'donor', name: user.email.split('@')[0] };
+        }
+        updateNavbarAuth();
         await loadProfile();
       } else {
+        currentUser = null;
+        currentUserData = null;
+        updateNavbarAuth();
         window.location.href = 'login.html';
       }
-    });
-
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      await signOut(auth);
-      localStorage.clear();
-      window.location.href = 'login.html';
     });
   </script>
 </body>
